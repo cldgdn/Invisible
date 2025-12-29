@@ -24,13 +24,11 @@ public:
     const Transform *transform;
     Vec2 offset;
     float width, height;
-    unsigned int layerMask;
+    short unsigned int layerMask;
     ColliderType type;
-    bool active;
+    bool isActive, isStatic;
 
-    Collider(const Transform *transform, Vec2 offset, float width, float height, unsigned int layerMask, ColliderType type);
-
-    CollisionType collide();
+    Collider(const Transform *transform, Vec2 offset, float width, float height, unsigned int layerMask, ColliderType type, bool isStatic);
 };
 
 #endif //INVISIBLE_COLLIDER_H

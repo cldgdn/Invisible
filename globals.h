@@ -8,4 +8,14 @@
 extern double deltaTime;
 extern unsigned int SCREEN_WIDTH, SCREEN_HEIGHT, LOGIC_SCREEN_WIDTH, LOGIC_SCREEN_HEIGHT;
 
+constexpr unsigned int ROOM_WIDTH = 16;
+constexpr unsigned int ROOM_HEIGHT = 8;
+constexpr unsigned int TILE_SIZE = 16;
+
+constexpr unsigned short int
+    CLAYER_TILES = 0b0000000000000001,
+    CLAYER_PLAYER = 0b0000000000000010,
+    CLAYER_ENEMY = 0b0000000000000100,
+    CLAYER_INTERACTION = 0b0000000000010000;
+
 #endif //INVISIBLE_GLOBALS_H

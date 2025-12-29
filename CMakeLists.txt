@@ -48,7 +48,11 @@ add_executable(Invisible main.cpp
         dynamic/Sprite.cpp
         dynamic/Sprite.h
         Game.cpp
-        Game.h)
+        Game.h
+        static/Room.cpp
+        static/Room.h
+        dynamic/Guard.cpp
+        dynamic/Guard.h)
 
 #STB IMAGE
 target_include_directories(Invisible PRIVATE

@@ -7,7 +7,9 @@
 #include <vector>
 
 #include "Texture.h"
+#include "../globals.h"
 #include "../Shader.h"
+#include "../dynamic/Collider.h"
 #include "glm/glm.hpp"
 
 namespace TILEMAP {
@@ -70,15 +72,13 @@ namespace TILEMAP {
 
 class TileMap {
 public:
-    static constexpr unsigned int ROOM_WIDTH = 16;
-    static constexpr unsigned int ROOM_HEIGHT = 8;
-    static constexpr unsigned int TILE_SIZE = 16;
     static constexpr unsigned char TEXTURE_ID_MASK = 0b00111111;
     static constexpr unsigned char SOLID_BIT = 0b01000000;
     static constexpr unsigned char MESHED_BIT = 0b10000000;
 
     unsigned char tiles[ROOM_HEIGHT][ROOM_WIDTH];
     std::vector<Texture*> textures;
+    std::vector<Collider*> colliders;
     const std::string& path;
 
     TileMap(bool **solidMap, const std::string& path);

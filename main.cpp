@@ -169,6 +169,7 @@ int main()
         glUniform1i(glGetUniformLocation(visorSprite.ID, "uRenderMode"), renderMode);
         glUniform1i(glGetUniformLocation(visorSprite.ID, "uVirtualHeight"), LOGIC_SCREEN_HEIGHT);
         glUniform1i(glGetUniformLocation(visorSprite.ID, "uRealHeight"), SCREEN_HEIGHT);
+
         numbers.draw();
 
         glfwSwapBuffers(window);

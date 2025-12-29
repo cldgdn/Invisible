@@ -9,6 +9,8 @@
 #include "../Shader.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include "../globals.h"
 #include "glm/gtc/type_ptr.hpp"
 
 TileMap::TileMap(bool **solidMap, const std::string& path) : path(path) {
@@ -109,6 +111,19 @@ void TileMap::greedyMeshTiles() {
                     new Vec2(j * TILE_SIZE, i * TILE_SIZE)
                 );
                 textures.push_back(t);
+
+                if (tiles[i][j] & SOLID_BIT) {
+                    Collider *c = new Collider(
+                        nullptr,
+                        Vec2(j, i),
+                        TILE_SIZE * currWidth,
+                        TILE_SIZE * currHeight,
+                        CLAYER_TILES,
+                        ColliderType::SOLID,
+                        true
+                    );
+                    colliders.push_back(c);
+                }
             }
         }
     }
