@@ -72,6 +72,8 @@ Game::~Game() {
  */
 void Game::start() {
     double currentTime, lastFrame = 0;
+    double elapsedTime = 0;
+    int frames = 0;
     isRunning = true;
     player->transform->position = {40, 0};
     //GAME LOOP
@@ -145,6 +147,15 @@ void Game::start() {
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        frames++;
+        elapsedTime += deltaTime;
+
+        if (elapsedTime >= 1) {
+            elapsedTime = 0;
+            printf("FPS: %d\n", frames);
+            frames = 0;
+        }
 
         isRunning = !glfwWindowShouldClose(window);
     }
