@@ -4,12 +4,22 @@
 
 #ifndef INVISIBLE_GAME_H
 #define INVISIBLE_GAME_H
+#include <vector>
+
 #include "Shader.h"
+#include "GLFW/glfw3.h"
+#include "glm/ext/matrix_clip_space.hpp"
+#include "static/Room.h"
+#include "static/TileMap.h"
 
 
 class Game {
 public:
-    Game();
+    std::vector<Room*> rooms;
+    Room *activeRoom;
+    GLFWwindow *window;
+
+    Game(GLFWwindow *window);
     ~Game();
 
     void start();

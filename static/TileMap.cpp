@@ -22,6 +22,10 @@ TileMap::~TileMap() {
     for (Texture* texture : textures) {
         delete texture;
     }
+
+    for (Collider* collider : colliders) {
+        delete collider;
+    }
 }
 
 void TileMap::remapTiles(bool **solidMap) {

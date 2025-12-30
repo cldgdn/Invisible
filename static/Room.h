@@ -7,10 +7,11 @@
 class Room {
 public:
     TileMap *tileMap;
-    std::vector<Guard*> guards;
+    std::vector<Guard*> *guards;
 
+    Room(TileMap *tileMap, std::vector<Guard*> *guards);
+    ~Room();
 private:
-
 
 };
 

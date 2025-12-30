@@ -14,6 +14,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Game.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "static/Texture.h"
 #include "static/TileMap.h"
@@ -31,8 +32,8 @@ GLuint compileShader(const char* filePath, GLenum shaderType);
 unsigned int SCREEN_WIDTH = 1600;
 unsigned int SCREEN_HEIGHT = 900;
 
-unsigned int LOGIC_SCREEN_WIDTH = 32 * TileMap::TILE_SIZE;
-unsigned int LOGIC_SCREEN_HEIGHT = 18 * TileMap::TILE_SIZE;
+unsigned int LOGIC_SCREEN_WIDTH = 32 * TILE_SIZE;
+unsigned int LOGIC_SCREEN_HEIGHT = 18 * TILE_SIZE;
 
 double deltaTime = 0;
 int renderMode = 0;
@@ -73,7 +74,7 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    bool fullTileDisplayMap[TileMap::ROOM_HEIGHT][TileMap::ROOM_WIDTH] = {
+    bool fullTileDisplayMap[ROOM_HEIGHT][ROOM_WIDTH] = {
         {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
         {0,1,0,0,1,0,0,0,1,0,0,0,1,1,1,0},
         {0,0,0,1,1,1,1,0,1,1,0,0,1,0,1,0},
@@ -84,7 +85,7 @@ int main()
         {0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0}
     };
 
-    bool test_map1[TileMap::ROOM_HEIGHT][TileMap::ROOM_WIDTH] = {
+    bool test_map1[ROOM_HEIGHT][ROOM_WIDTH] = {
         {0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
         {0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,1},
         {0,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1},
@@ -95,7 +96,7 @@ int main()
         {0,1,1,0,0,0,0,1,0,1,0,0,0,0,0,1}
     };
 
-    bool basicRoom[TileMap::ROOM_HEIGHT][TileMap::ROOM_WIDTH] = {
+    bool basicRoom[ROOM_HEIGHT][ROOM_WIDTH] = {
         {1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
         {1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1},
         {1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0},
@@ -108,8 +109,8 @@ int main()
 
     bool (*map)[16] = basicRoom;
 
-    bool *ptrs[TileMap::ROOM_HEIGHT];
-    for (int i = 0; i < TileMap::ROOM_HEIGHT; i++) {
+    bool *ptrs[ROOM_HEIGHT];
+    for (int i = 0; i < ROOM_HEIGHT; i++) {
         ptrs[i] = map[i];
     }
 
@@ -127,9 +128,9 @@ int main()
         -1.0f, 1.0f);
 
     int meshes = tileMap.textures.size();
-    float percentage = 100 - ((float) meshes / (TileMap::ROOM_HEIGHT * TileMap::ROOM_WIDTH) * 100);
+    float percentage = 100 - ((float) meshes / (ROOM_HEIGHT * ROOM_WIDTH) * 100);
 
-    std::cout << "Draw calls / tiles: " << meshes << " / " << TileMap::ROOM_HEIGHT * TileMap::ROOM_WIDTH
+    std::cout << "Draw calls / tiles: " << meshes << " / " << ROOM_HEIGHT * ROOM_WIDTH
     << " (%" << percentage << " calls avoided)" << std::endl;
 
 
@@ -144,6 +145,14 @@ int main()
     Animation anim("resources\\spritesheet.png", 16, 16, frameLocations, 5, 16, 16, 5);
     numbers.addAnimation("numbers",  &anim);
 
+    Game *game = new Game(window);
+
+    game->start();
+
+    delete game;
+
+
+    /*
     double currentTime, lastFrame = 0;
     while (!glfwWindowShouldClose(window))
     {
@@ -175,6 +184,7 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+    */
 
     Texture::clearTextureCache();
     glfwTerminate();
