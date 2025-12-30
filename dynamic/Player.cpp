@@ -5,6 +5,22 @@
 using namespace PLAYER;
 
 Player::Player(Texture *fallbackTexture, UVinfo *fallbackUVinfo) : Sprite(fallbackTexture, fallbackUVinfo) {
+    Collider *wallCollider = new Collider(
+        transform, {0, (int)TILE_SIZE},
+        TILE_SIZE - 1, TILE_SIZE - 1,
+        CLAYER_TILES,
+        ColliderType::SOLID, false
+    );
+
+    Collider *hurtBox = new Collider(
+        transform, {0, 0},
+        TILE_SIZE, TILE_SIZE * 2,
+        CLAYER_INTERACTION | CLAYER_PLAYER,
+        ColliderType::TRIGGER, false
+    );
+
+    colliders.push_back(wallCollider);
+    colliders.push_back(hurtBox);
 }
 
 Player::~Player() {

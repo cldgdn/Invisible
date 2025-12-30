@@ -7,7 +7,13 @@
 
 struct Vec2 {
     float x, y;
+
+    Vec2 operator+(const Vec2 & vec2) const;
 };
+
+inline Vec2 Vec2::operator+(const Vec2 &vec2) const {
+    return Vec2(this->x + vec2.x, this->y + vec2.y);
+}
 
 struct Vec3 {
     float x, y, z;

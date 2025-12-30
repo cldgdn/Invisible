@@ -1,7 +1,3 @@
-//
-// Created by clode on 10/12/2025.
-//
-
 #ifndef INVISIBLE_GAME_H
 #define INVISIBLE_GAME_H
 #include <vector>
@@ -9,7 +5,6 @@
 #include "Shader.h"
 #include "dynamic/Player.h"
 #include "GLFW/glfw3.h"
-#include "glm/ext/matrix_clip_space.hpp"
 #include "static/Room.h"
 #include "static/TileMap.h"
 
@@ -29,6 +24,8 @@ public:
 private:
     bool debug, isRunning;
     Shader *tileShader, *tileDebugShader, *spriteShader, *spriteDebugShader;
+
+    CollisionType AABB(Collider *a, Collider *b);
 };
 
 

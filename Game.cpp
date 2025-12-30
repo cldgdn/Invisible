@@ -1,7 +1,3 @@
-//
-// Created by clode on 10/12/2025.
-//
-
 #include "Game.h"
 
 #include "GLFW/glfw3.h"
@@ -12,6 +8,7 @@ static glm::mat4 projection = glm::ortho(
     (float) LOGIC_SCREEN_HEIGHT, 0.0f,
     -1.0f, 1.0f
 );
+
 /*
  * When creating a new Game instance, all shaders, rooms, sprites, tilemaps and everything else is created.
  * This is where objects are hard coded into the game.
@@ -51,7 +48,7 @@ Game::Game(GLFWwindow *window) : window(window) {
         {3, 0},
         {4, 0}
     };
-    Animation *playerAnim1 = new Animation("resources\\spritesheet.png", 16, 16, frameLocations, 5, 16, 16, 5);
+    Animation *playerAnim1 = new Animation("resources\\spritesheet.png", 16, 32, frameLocations, 5, 16, 16, 5);
 
     player = new Player(playerSpriteSheet, nullptr);
     player->addAnimation("walking", playerAnim1);
@@ -76,7 +73,7 @@ Game::~Game() {
 void Game::start() {
     double currentTime, lastFrame = 0;
     isRunning = true;
-
+    player->transform->position = {40, 0};
     //GAME LOOP
     while (isRunning) {
         currentTime = glfwGetTime();
@@ -87,10 +84,36 @@ void Game::start() {
 
         player->processInput(window);
 
-        /*TODO: COLLISION CHECKS
-         * this is where the collision checks would happen and then the game would go through each collider from sprites with pending translations
-         * and cause behavior depending on the type of collision (trigger or solid)
-         */
+        //TODO: COLLISION CHECKS
+        //run through each non-static collider and check for collisions against all other colliders on the same layers (will be split into sub-areas if it comes out to be too slow)
+
+        if (player->transform->translatePending) {
+            for (Collider *c : player->colliders) {
+                if (c->layerMask & CLAYER_TILES) {
+                    for (Collider *t : activeRoom->tileMap->colliders) {
+                        CollisionType type = AABB(c, t);
+                        switch (type) {
+                            case CollisionType::SOLID_COLLISION:
+                                //handle solid by clamping c movement to t boundaries based on direction
+                                //printf("[COLLISION] Player collider hit a wall!\n");
+                                player->transform->undoTranslate2d();
+                                break;
+                            case CollisionType::TRIGGER_COLLISION:
+                                //printf("[COLLISION] Player collider hit a trigger!\n");
+                                break;
+                            case CollisionType::NO_COLLISION:
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+
+            if (player->transform->translatePending) {
+                player->transform->confirmTranslate2d();
+            }
+        }
+
         player->transform->confirmTranslate2d(); //<- direct confirmations like this would not happen and would be handled by the colliders themselves based on collision outcome.
 
         //RENDERING
@@ -133,4 +156,27 @@ void Game::start() {
  */
 void Game::stop() {
     isRunning = false;
+}
+
+CollisionType Game::AABB(Collider *a, Collider *b) {
+    if (!(a->layerMask & b->layerMask))
+        return CollisionType::NO_COLLISION;
+
+    Vec2 apos = a->transform != nullptr ? a->transform->position + a->offset : a->offset;
+    Vec2 bpos = b->transform != nullptr ? b->transform->position + b->offset : b->offset;
+
+    bool isRight, isLeft, isAbove, isBelow;
+    isRight = apos.x > bpos.x + b->width;
+    isLeft = apos.x + a->width < bpos.x;
+    isAbove = apos.y + a->height < bpos.y;
+    isBelow = apos.y > bpos.y + b->height;
+
+    if (!(isRight || isLeft || isAbove || isBelow)) {
+        if (b->type == ColliderType::SOLID)
+            return CollisionType::SOLID_COLLISION;
+
+        return CollisionType::TRIGGER_COLLISION;
+    }
+
+    return CollisionType::NO_COLLISION;
 }

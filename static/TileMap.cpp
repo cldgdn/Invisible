@@ -133,7 +133,7 @@ void TileMap::greedyMeshTiles() {
                 if (tiles[i][j] & SOLID_BIT) {
                     Collider *c = new Collider(
                         nullptr,
-                        Vec2(j, i),
+                        Vec2(j * TILE_SIZE, i * TILE_SIZE),
                         TILE_SIZE * currWidth,
                         TILE_SIZE * currHeight,
                         CLAYER_TILES,

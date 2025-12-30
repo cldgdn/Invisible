@@ -8,7 +8,8 @@ Transform::Transform() :
     position(Vec2(0, 0)),
     rotation(Vec2(0, 0)),
     scale(Vec2(1, 1)),
-    currentTranslation2d(Vec2(0, 0))
+    currentTranslation2d(Vec2(0, 0)),
+    translatePending(false)
 {}
 
 void Transform::translate2d(const Vec2& translation) {
@@ -28,6 +29,8 @@ void Transform::confirmTranslate2d() {
 }
 
 void Transform::undoTranslate2d() {
+    if (!translatePending) return;
+
     position.x -= currentTranslation2d.x;
     position.y -= currentTranslation2d.y;
 

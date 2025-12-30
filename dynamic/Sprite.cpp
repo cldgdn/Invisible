@@ -61,7 +61,7 @@ bool Sprite::playAnimation(const std::string &name, int startFrame) {
 
 void Sprite::stopAnimation() {
     if (currentAnimation == nullptr) return;
-    
+
     auto it = animations.find(*currentAnimation);
 
     if (it != animations.end()) {
