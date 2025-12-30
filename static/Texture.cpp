@@ -13,6 +13,9 @@
 
 std::unordered_map<std::string, TextureInfo> Texture::textureCache;
 
+/*
+ * Creates a new Texture object based on file path and size. Allows to choose whether to tile or stretch and if to always draw it at the exact same spot.
+ */
 Texture::Texture(const std::string &path, float width, float height, TileMode mode, Vec2 *staticPos) :
     width(width), height(height), mode(mode), staticPos(staticPos), path(path)
 {
@@ -41,6 +44,9 @@ Texture::~Texture() {
     glDeleteBuffers(1, &EBO);
 }
 
+/*
+ * Loads the new image from a file
+ */
 void Texture::loadTextureFromFile() {
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -76,6 +82,9 @@ void Texture::loadTextureFromFile() {
     stbi_image_free(data);
 }
 
+/*
+ * generates the quad mesh based on the intended screen size of the texture
+ */
 void Texture::setupMesh() {
     float uMax, vMax;
 

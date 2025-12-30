@@ -74,117 +74,11 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    bool fullTileDisplayMap[ROOM_HEIGHT][ROOM_WIDTH] = {
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-        {0,1,0,0,1,0,0,0,1,0,0,0,1,1,1,0},
-        {0,0,0,1,1,1,1,0,1,1,0,0,1,0,1,0},
-        {0,0,0,0,0,1,0,1,1,0,0,0,1,1,1,0},
-        {0,1,1,1,0,0,0,0,1,0,1,0,0,0,0,0},
-        {0,1,1,1,0,1,1,1,0,0,1,0,0,1,1,0},
-        {0,1,1,1,0,0,0,0,0,0,1,0,1,1,1,0},
-        {0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0}
-    };
-
-    bool test_map1[ROOM_HEIGHT][ROOM_WIDTH] = {
-        {0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
-        {0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,1},
-        {0,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1},
-        {0,1,1,0,1,1,1,1,0,1,0,0,1,1,0,0},
-        {0,0,0,0,0,1,1,1,0,0,0,0,1,0,0,0},
-        {0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0},
-        {0,1,1,1,0,0,0,1,1,1,0,0,1,0,0,0},
-        {0,1,1,0,0,0,0,1,0,1,0,0,0,0,0,1}
-    };
-
-    bool basicRoom[ROOM_HEIGHT][ROOM_WIDTH] = {
-        {1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
-        {1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1},
-        {1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0},
-        {1,1,0,0,1,1,1,0,0,1,0,0,0,0,0,0},
-        {1,1,0,0,1,1,1,0,0,1,0,0,0,0,0,1},
-        {1,1,0,0,1,1,1,0,0,1,0,0,0,0,0,1},
-        {1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
-    };
-
-    bool (*map)[16] = basicRoom;
-
-    bool *ptrs[ROOM_HEIGHT];
-    for (int i = 0; i < ROOM_HEIGHT; i++) {
-        ptrs[i] = map[i];
-    }
-
-    //Shader tilesShader("shaders\\vertex\\tilesVertex.vert", "shaders\\fragment\\tilesFragment.frag");
-    //Shader debugShader("shaders\\vertex\\tilesVertex.vert", "shaders\\fragment\\debugFragment.frag");
-    Shader spriteShader("shaders\\vertex\\spriteVertex.vert", "shaders\\fragment\\tilesFragment.frag");
-    Shader visorSprite("shaders\\vertex\\spriteVertex.vert", "shaders\\fragment\\visorSupport.frag");
-    Shader visorTile("shaders\\vertex\\tilesVertex.vert", "shaders\\fragment\\visorSupport.frag");
-    TileMap tileMap(ptrs, "resources\\textures\\tiles\\debug\\");
-    Texture spriteSheet("resources\\spritesheet.png", 80, 16, Texture::TileMode::STRETCH, nullptr);
-
-    glm::mat4 projection = glm::ortho(
-        0.0f, (float) LOGIC_SCREEN_WIDTH,
-        (float) LOGIC_SCREEN_HEIGHT, 0.0f,
-        -1.0f, 1.0f);
-
-    int meshes = tileMap.textures.size();
-    float percentage = 100 - ((float) meshes / (ROOM_HEIGHT * ROOM_WIDTH) * 100);
-
-    std::cout << "Draw calls / tiles: " << meshes << " / " << ROOM_HEIGHT * ROOM_WIDTH
-    << " (%" << percentage << " calls avoided)" << std::endl;
-
-
-    Sprite numbers(&spriteSheet, nullptr);
-    Vec2 frameLocations[] = {
-        {0, 0},
-        {1, 0},
-        {2, 0},
-        {3, 0},
-        {4, 0}
-    };
-    Animation anim("resources\\spritesheet.png", 16, 16, frameLocations, 5, 16, 16, 5);
-    numbers.addAnimation("numbers",  &anim);
-
     Game *game = new Game(window);
 
     game->start();
 
     delete game;
-
-
-    /*
-    double currentTime, lastFrame = 0;
-    while (!glfwWindowShouldClose(window))
-    {
-        currentTime = glfwGetTime();
-        deltaTime = currentTime - lastFrame;
-        lastFrame = currentTime;
-
-        processInput(window, &numbers);
-
-        glClearColor(1.0f, 1.0, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glUseProgram(visorTile.ID);
-        glUniformMatrix4fv(glGetUniformLocation(visorTile.ID, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniform1i(glGetUniformLocation(visorTile.ID, "uRenderMode"), renderMode);
-        glUniform1i(glGetUniformLocation(visorTile.ID, "uVirtualHeight"), LOGIC_SCREEN_HEIGHT);
-        glUniform1i(glGetUniformLocation(visorTile.ID, "uRealHeight"), SCREEN_HEIGHT);
-
-        tileMap.draw(false);
-
-        glUseProgram(visorSprite.ID);
-        glUniformMatrix4fv(glGetUniformLocation(visorSprite.ID, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniform1i(glGetUniformLocation(visorSprite.ID, "uRenderMode"), renderMode);
-        glUniform1i(glGetUniformLocation(visorSprite.ID, "uVirtualHeight"), LOGIC_SCREEN_HEIGHT);
-        glUniform1i(glGetUniformLocation(visorSprite.ID, "uRealHeight"), SCREEN_HEIGHT);
-
-        numbers.draw();
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-    */
 
     Texture::clearTextureCache();
     glfwTerminate();

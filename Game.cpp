@@ -12,7 +12,10 @@ static glm::mat4 projection = glm::ortho(
     (float) LOGIC_SCREEN_HEIGHT, 0.0f,
     -1.0f, 1.0f
 );
-
+/*
+ * When creating a new Game instance, all shaders, rooms, sprites, tilemaps and everything else is created.
+ * This is where objects are hard coded into the game.
+ */
 Game::Game(GLFWwindow *window) : window(window) {
     spriteShader = new Shader("shaders\\vertex\\spriteVertex.vert", "shaders\\fragment\\visorSupport.frag");
     tileShader = new Shader("shaders\\vertex\\tilesVertex.vert", "shaders\\fragment\\visorSupport.frag");
@@ -52,6 +55,9 @@ Game::~Game() {
     }
 }
 
+/*
+ * Starting the game instance will begin drawing and processing all the sprites in the current activeRoom.
+ */
 void Game::start() {
     Texture spriteSheet("resources\\spritesheet.png", 80, 16, Texture::TileMode::STRETCH, nullptr);
     Sprite numbers(&spriteSheet, nullptr);
@@ -68,10 +74,15 @@ void Game::start() {
     double currentTime, lastFrame = 0;
     isRunning = true;
 
+    //GAME LOOP
     while (isRunning) {
         currentTime = glfwGetTime();
         deltaTime = currentTime - lastFrame;
         lastFrame = currentTime;
+
+        //TODO: GAME LOGIC
+
+        //RENDERING
 
         glClearColor(1.0f, 1.0, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -99,5 +110,10 @@ void Game::start() {
     }
 }
 
+/*
+ * sets the game's state to not running, which will cause the entire thing to stop running and return to main.
+ * this method is intended to be used by game objects (such as sprites ecc.)
+ */
 void Game::stop() {
+    isRunning = false;
 }

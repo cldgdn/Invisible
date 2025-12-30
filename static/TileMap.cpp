@@ -28,6 +28,9 @@ TileMap::~TileMap() {
     }
 }
 
+/*
+ * starting from a boolean value, determine the exact id for each tile
+ */
 void TileMap::remapTiles(bool **solidMap) {
     using namespace TILEMAP;
     unsigned char currNeighbours = 0;
@@ -36,7 +39,7 @@ void TileMap::remapTiles(bool **solidMap) {
     for (int i = 0; i < ROOM_HEIGHT; i++) {
         for (int j = 0; j < ROOM_WIDTH; j++) {
             currNeighbours = mapNeighbours(solidMap, i, j);
-            currNeighbours = (solidMap[i][j]) ? currNeighbours : ~currNeighbours;
+            currNeighbours = (solidMap[i][j]) ? currNeighbours : ~currNeighbours; //if current tile is not solid, negate neighbors to have 1s where other non-solid neighbors are.
 
             tileMatched = false;
             for (unsigned char k = 0; k < MAP_LENGTH; k++) {
@@ -55,6 +58,13 @@ void TileMap::remapTiles(bool **solidMap) {
     }
 }
 
+/*
+ * generates a byte where each bit (ordered 01234567) is set to 1 if the corresponding tile is solid or out of bounds.
+ * mapping (T is the current tile):
+ * 012
+ * 3T4
+ * 567
+ */
 unsigned char TileMap::mapNeighbours(bool **solidMap, int x, int y) {
     unsigned char neighbours = 0, currBit = 0b10000000;
     for (int i = x - 1; i < x + 2; i++) {
@@ -72,10 +82,14 @@ unsigned char TileMap::mapNeighbours(bool **solidMap, int x, int y) {
     return neighbours;
 }
 
-//create the texture objects by grouping each tile with the same value into the same Texture set to TILE by greedy meshing*
-//on each tile, if MESHED_BIT is not set (therefore the tile wasn't placed in a mesh yet), check to the right all the way
-//until the next tile has a different value (different texid, or same texid but already meshed), that will be the width of the mesh.
-//After, try going down one and all the way to the right up to the last equal tile or until reaching the set width, whichever is first.
+/*
+ * create the texture objects by grouping each tile with the same value into the same Texture set to TILE by greedy meshing
+ * on each tile, if MESHED_BIT is not set (therefore the tile wasn't placed in a mesh yet), check to the right all the way
+ * until the next tile has a different value (different texid, or same texid but already meshed), that will be the width of the mesh.
+ * After, try going down one and all the way to the right up to the last equal tile or until reaching the set width, whichever is first.
+ * Once a group is formed, it gets assigned a texture and (if solid) a collider is also created.
+ */
+
 void TileMap::greedyMeshTiles() {
     int currWidth = 0, currHeight = 0, tempWidth = 0;
 
