@@ -23,12 +23,18 @@ void Animation::bindTransform(Transform *transform) {
 }
 
 void Animation::play(int startingFrame) {
-    timer = 0;
+    if (frameProgress != 0)
+        timer = frameProgress;
+    else {
+        timer = 0;
+        frameProgress = 0;
+    }
     currentFrame = startingFrame;
     playing = true;
 }
 
 void Animation::stop() {
+    frameProgress = timer;
     playing = false;
 }
 

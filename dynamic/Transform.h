@@ -13,9 +13,12 @@ public:
     Vec2 rotation;
     Vec2 scale;
 
+    bool translatePending;
+
     Transform();
 
     void translate2d(const Vec2& translation);
+    void confirmTranslate2d();
     void undoTranslate2d();
 private:
     Vec2 currentTranslation2d;

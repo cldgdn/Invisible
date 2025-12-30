@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Shader.h"
+#include "dynamic/Player.h"
 #include "GLFW/glfw3.h"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "static/Room.h"
@@ -17,6 +18,7 @@ class Game {
 public:
     std::vector<Room*> rooms;
     Room *activeRoom;
+    Player *player;
     GLFWwindow *window;
 
     Game(GLFWwindow *window);

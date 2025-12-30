@@ -18,7 +18,7 @@ public:
     const std::string *currentAnimation;
 
     Sprite(Texture *fallbackTexture, UVinfo *fallbackUVinfo);
-    ~Sprite();
+    virtual ~Sprite();
 
     void draw();
     void addCollider(Collider *collider);
@@ -27,7 +27,7 @@ public:
     void stopAnimation();
     void resumeAnimation();
 
-private:
+protected:
     std::unordered_map<std::string, Animation*> animations;
     Texture *fallbackTexture;
     UVinfo *fallbackUVinfo;

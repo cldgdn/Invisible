@@ -17,8 +17,14 @@ void Transform::translate2d(const Vec2& translation) {
     position.x += translation.x;
     position.y += translation.y;
 
-    // TODO: Call on the colliders to check for solid collision or undo types collisions.
-    // if solid clamp coordinates to wall, if undo call undoTranslate2d.
+    translatePending = true;
+}
+
+void Transform::confirmTranslate2d() {
+    translatePending = false;
+
+    currentTranslation2d.x = 0;
+    currentTranslation2d.y = 0;
 }
 
 void Transform::undoTranslate2d() {

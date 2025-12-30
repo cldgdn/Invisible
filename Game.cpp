@@ -20,17 +20,17 @@ Game::Game(GLFWwindow *window) : window(window) {
     spriteShader = new Shader("shaders\\vertex\\spriteVertex.vert", "shaders\\fragment\\visorSupport.frag");
     tileShader = new Shader("shaders\\vertex\\tilesVertex.vert", "shaders\\fragment\\visorSupport.frag");
 
-    rooms = std::vector<Room*>();
+    rooms = std::vector<Room *>();
 
     bool solidMap1[ROOM_HEIGHT][ROOM_WIDTH] = {
-        {1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
-        {1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1},
-        {1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0},
-        {1,1,0,0,1,1,1,0,0,1,0,0,0,0,0,0},
-        {1,1,0,0,1,1,1,0,0,1,0,0,0,0,0,1},
-        {1,1,0,0,1,1,1,0,0,1,0,0,0,0,0,1},
-        {1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+        {1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+        {1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+        {1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+        {1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+        {1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+        {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
     };
     bool *map1[ROOM_HEIGHT];
     for (int i = 0; i < ROOM_HEIGHT; i++) {
@@ -42,6 +42,19 @@ Game::Game(GLFWwindow *window) : window(window) {
     rooms.push_back(room1);
 
     activeRoom = room1;
+
+    Texture *playerSpriteSheet = new Texture("resources\\spritesheet.png", 80, 16, Texture::TileMode::STRETCH, nullptr);
+    Vec2 *frameLocations = new Vec2[]{ //this is not best practice but sunk cost demands its use.
+        {0, 0},
+        {1, 0},
+        {2, 0},
+        {3, 0},
+        {4, 0}
+    };
+    Animation *playerAnim1 = new Animation("resources\\spritesheet.png", 16, 16, frameLocations, 5, 16, 16, 5);
+
+    player = new Player(playerSpriteSheet, nullptr);
+    player->addAnimation("walking", playerAnim1);
 }
 
 Game::~Game() {
@@ -53,24 +66,14 @@ Game::~Game() {
     for (Room *room : rooms) {
         delete room;
     }
+
+    delete player;
 }
 
 /*
  * Starting the game instance will begin drawing and processing all the sprites in the current activeRoom.
  */
 void Game::start() {
-    Texture spriteSheet("resources\\spritesheet.png", 80, 16, Texture::TileMode::STRETCH, nullptr);
-    Sprite numbers(&spriteSheet, nullptr);
-    Vec2 frameLocations[] = {
-        {0, 0},
-        {1, 0},
-        {2, 0},
-        {3, 0},
-        {4, 0}
-    };
-    Animation anim("resources\\spritesheet.png", 16, 16, frameLocations, 5, 16, 16, 5);
-    numbers.addAnimation("numbers",  &anim);
-
     double currentTime, lastFrame = 0;
     isRunning = true;
 
@@ -81,6 +84,14 @@ void Game::start() {
         lastFrame = currentTime;
 
         //TODO: GAME LOGIC
+
+        player->processInput(window);
+
+        /*TODO: COLLISION CHECKS
+         * this is where the collision checks would happen and then the game would go through each collider from sprites with pending translations
+         * and cause behavior depending on the type of collision (trigger or solid)
+         */
+        player->transform->confirmTranslate2d(); //<- direct confirmations like this would not happen and would be handled by the colliders themselves based on collision outcome.
 
         //RENDERING
 
@@ -101,7 +112,13 @@ void Game::start() {
         spriteShader->setInt("uVirtualHeight", LOGIC_SCREEN_HEIGHT);
         spriteShader->setInt("uRealHeight", SCREEN_HEIGHT);
 
-        numbers.draw();
+        if (activeRoom->guards != nullptr) {
+            for (Guard *guard : *activeRoom->guards) {
+                guard->draw();
+            }
+        }
+
+        player->draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

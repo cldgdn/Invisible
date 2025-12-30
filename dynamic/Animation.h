@@ -15,6 +15,7 @@ public:
     int currentFrame, frameCount, FPS;
     int frameWidth, frameHeight;
     float width, height;
+    bool playing;
 
     Animation(const std::string& atlas, float width, float height, Vec2 *frameLocations, int frameCount, int frameWidth, int frameHeight, int FPS);
     ~Animation();
@@ -27,8 +28,7 @@ public:
     void draw();
 
 private:
-    double timer;
-    bool playing;
+    double timer, frameProgress;
 
     Transform *transform;
     std::string atlas;

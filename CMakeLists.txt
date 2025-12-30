@@ -52,7 +52,9 @@ add_executable(Invisible main.cpp
         static/Room.cpp
         static/Room.h
         dynamic/Guard.cpp
-        dynamic/Guard.h)
+        dynamic/Guard.h
+        dynamic/Player.cpp
+        dynamic/Player.h)
 
 #STB IMAGE
 target_include_directories(Invisible PRIVATE
