@@ -90,26 +90,14 @@ void Game::start() {
 
         player->processInput(window);
 
-        //TODO: COLLISION CHECKS
+        //COLLISION CHECKS
         //run through each non-static collider and check for collisions against all other colliders on the same layers (will be split into sub-areas if it comes out to be too slow)
 
         if (player->transform->translatePending) {
             for (Collider *c : player->colliders) {
                 if (c->layerMask & CLAYER_TILES) {
                     for (Collider *t : activeRoom->tileMap->colliders) {
-                        CollisionType type = AABB(c, t);
-                        switch (type) {
-                            case CollisionType::SOLID_COLLISION:
-                            {
-                                break;
-                            }
-                            case CollisionType::TRIGGER_COLLISION:
-                                //printf("[COLLISION] Player collider hit a trigger!\n");
-                                break;
-                            case CollisionType::NO_COLLISION:
-                            default:
-                                break;
-                        }
+                        AABB(c, t);
                     }
                 }
             }

@@ -6,9 +6,9 @@ using namespace PLAYER;
 
 Player::Player(Texture *fallbackTexture, UVinfo *fallbackUVinfo) : Sprite(fallbackTexture, fallbackUVinfo) {
     Collider *wallCollider = new Collider(
-        transform, {0, (int)TILE_SIZE},
-        TILE_SIZE - 1, TILE_SIZE - 1,
-        CLAYER_TILES,
+        transform, {1, (int)TILE_SIZE + 1},
+        TILE_SIZE - 2, TILE_SIZE - 2,
+        CLAYER_TILES | CLAYER_SOLID_PROPS,
         ColliderType::SOLID, false
     );
 
