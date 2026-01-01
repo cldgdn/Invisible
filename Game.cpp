@@ -175,7 +175,10 @@ void Game::start() {
 void Game::stop() {
     isRunning = false;
 }
-
+/*
+ * checks if a collides with b and what kind of collision it is. For solid collisions, it assumes that a is the collider moving INTO the solid object.
+ * This assumption is viable since moving solid objects will only be checking against walls and other static objects by design.
+ */
 CollisionType Game::AABB(Collider *a, Collider *b) {
     if (!(a->layerMask & b->layerMask))
         return CollisionType::NO_COLLISION;
@@ -193,7 +196,7 @@ CollisionType Game::AABB(Collider *a, Collider *b) {
         if (b->type == ColliderType::SOLID) {
             // handle sliding collision (if a is moving toward b at an angle, only push a back along the axis it actually came at it from)
             float deltaxright, deltaxleft, deltax, deltaydown, deltayup, deltay;
-            if (a->transform != nullptr) {
+            if (a->transform != nullptr && !a->isStatic) { //<- makes sure the object can in fact be moved
                 //find out how far into the b collider a got along the x-axis, assuming it couldn't have crossed more than halfway through it in 1 frame.
                 deltax = 0;
                 if (a->transform->currentTranslation2d.x != 0) {
