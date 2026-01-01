@@ -12,6 +12,7 @@ public:
     Vec2 position;
     Vec2 rotation;
     Vec2 scale;
+    Vec2 currentTranslation2d;
 
     bool translatePending;
 
@@ -20,8 +21,6 @@ public:
     void translate2d(const Vec2& translation);
     void confirmTranslate2d();
     void undoTranslate2d();
-private:
-    Vec2 currentTranslation2d;
 };
 
 #endif //INVISIBLE_TRANSFORM_H

@@ -21,14 +21,14 @@ enum CollisionType {
 
 class Collider {
 public:
-    const Transform *transform;
+    Transform *transform;
     Vec2 offset;
     float width, height;
     short unsigned int layerMask;
     ColliderType type;
     bool isActive, isStatic;
 
-    Collider(const Transform *transform, Vec2 offset, float width, float height, unsigned int layerMask, ColliderType type, bool isStatic);
+    Collider(Transform *transform, Vec2 offset, float width, float height, unsigned int layerMask, ColliderType type, bool isStatic);
 };
 
 #endif //INVISIBLE_COLLIDER_H

@@ -72,15 +72,19 @@ Game::~Game() {
  */
 void Game::start() {
     double currentTime, lastFrame = 0;
-    double elapsedTime = 0;
+    double elapsedTime = 0, frameStartTime, frameEndTime, totFrameTime = 0;
     int frames = 0;
     isRunning = true;
     player->transform->position = {40, 0};
     //GAME LOOP
     while (isRunning) {
+        frameStartTime = glfwGetTime();
+
         currentTime = glfwGetTime();
         deltaTime = currentTime - lastFrame;
         lastFrame = currentTime;
+
+
 
         //TODO: GAME LOGIC
 
@@ -96,10 +100,9 @@ void Game::start() {
                         CollisionType type = AABB(c, t);
                         switch (type) {
                             case CollisionType::SOLID_COLLISION:
-                                //handle solid by clamping c movement to t boundaries based on direction
-                                //printf("[COLLISION] Player collider hit a wall!\n");
-                                player->transform->undoTranslate2d();
+                            {
                                 break;
+                            }
                             case CollisionType::TRIGGER_COLLISION:
                                 //printf("[COLLISION] Player collider hit a trigger!\n");
                                 break;
@@ -148,12 +151,16 @@ void Game::start() {
         glfwSwapBuffers(window);
         glfwPollEvents();
 
+        frameEndTime = glfwGetTime();
+
+        totFrameTime += frameEndTime - frameStartTime;
         frames++;
         elapsedTime += deltaTime;
 
         if (elapsedTime >= 1) {
             elapsedTime = 0;
-            printf("FPS: %d\n", frames);
+            printf("FPS: %d -- AVG frametime: %f\n", frames, totFrameTime / frames);
+            totFrameTime = 0;
             frames = 0;
         }
 
@@ -177,17 +184,76 @@ CollisionType Game::AABB(Collider *a, Collider *b) {
     Vec2 bpos = b->transform != nullptr ? b->transform->position + b->offset : b->offset;
 
     bool isRight, isLeft, isAbove, isBelow;
-    isRight = apos.x > bpos.x + b->width;
-    isLeft = apos.x + a->width < bpos.x;
-    isAbove = apos.y + a->height < bpos.y;
-    isBelow = apos.y > bpos.y + b->height;
+    isRight = apos.x >= bpos.x + b->width;
+    isLeft = apos.x + a->width <= bpos.x;
+    isAbove = apos.y + a->height <= bpos.y;
+    isBelow = apos.y >= bpos.y + b->height;
 
     if (!(isRight || isLeft || isAbove || isBelow)) {
-        if (b->type == ColliderType::SOLID)
+        if (b->type == ColliderType::SOLID) {
+            // handle sliding collision (if a is moving toward b at an angle, only push a back along the axis it actually came at it from)
+            float deltaxright, deltaxleft, deltax, deltaydown, deltayup, deltay;
+            if (a->transform != nullptr) {
+                //find out how far into the b collider a got along the x-axis, assuming it couldn't have crossed more than halfway through it in 1 frame.
+                deltax = 0;
+                if (a->transform->currentTranslation2d.x != 0) {
+                    deltaxright = apos.x + a->width - bpos.x;
+                    deltaxleft = bpos.x + b->width - apos.x;
+
+                    if (deltaxright < deltaxleft)
+                        deltax = deltaxright;
+                    else
+                        deltax = deltaxleft;
+                }
+
+                //find out how far into the b collider a got along the y-axis, assuming it couldn't have crossed more than halfway through it in 1 frame.
+                deltay = 0;
+                if (a->transform->currentTranslation2d.y != 0) {
+                    deltaydown = apos.y + a->height - bpos.y;
+                    deltayup = bpos.y + b->height - apos.y;
+
+                    if (deltaydown < deltayup)
+                        deltay = deltaydown;
+                    else
+                        deltay = deltayup;
+                }
+
+                //if either delta is 0, skip comparing them.
+                if (deltay == 0) goto movex;
+                if (deltax == 0) goto movey;
+
+                //clamp a to b based on which movement would be smaller
+                if (deltax < deltay) {
+                    movex:
+
+                    if (a->transform->currentTranslation2d.x > 0) {
+                        a->transform->currentTranslation2d.x -= deltax;
+                        a->transform->position.x -= deltax;
+                    }
+                    else if (a->transform->currentTranslation2d.x < 0) {
+                        a->transform->currentTranslation2d.x += deltax;
+                        a->transform->position.x += deltax;
+                    }
+                }
+                else {
+                    movey:
+
+                    if (a->transform->currentTranslation2d.y > 0) {
+                        a->transform->currentTranslation2d.y -= deltay;
+                        a->transform->position.y -= deltay;
+                    }
+                    else if (a->transform->currentTranslation2d.y < 0) {
+                        a->transform->currentTranslation2d.y += deltay;
+                        a->transform->position.y += deltay;
+                    }
+                }
+            }
             return CollisionType::SOLID_COLLISION;
+        }
 
         return CollisionType::TRIGGER_COLLISION;
     }
 
     return CollisionType::NO_COLLISION;
 }
+
