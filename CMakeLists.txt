@@ -54,7 +54,10 @@ add_executable(Invisible main.cpp
         dynamic/Guard.cpp
         dynamic/Guard.h
         dynamic/Player.cpp
-        dynamic/Player.h)
+        dynamic/Player.h
+        Pathfinder.cpp
+        Pathfinder.h
+)
 
 #STB IMAGE
 target_include_directories(Invisible PRIVATE

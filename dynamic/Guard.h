@@ -4,6 +4,10 @@
 
 
 class Guard : public Sprite {
+    std::vector<Vec2*> *patrolPath;
+    std::vector<Vec2*> *currentPath;
+    Vec2 *currDest;
+    bool isAlerted, isPathNeeded;
 };
 
 

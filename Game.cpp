@@ -167,7 +167,7 @@ void Game::stop() {
  * checks if a collides with b and what kind of collision it is. For solid collisions, it assumes that a is the collider moving INTO the solid object.
  * This assumption is viable since moving solid objects will only be checking against walls and other static objects by design.
  */
-CollisionType Game::AABB(Collider *a, Collider *b) {
+CollisionType AABB(Collider *a, Collider *b) {
     if (!(a->layerMask & b->layerMask))
         return CollisionType::NO_COLLISION;
 

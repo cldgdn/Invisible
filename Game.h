@@ -8,6 +8,8 @@
 #include "static/Room.h"
 #include "static/TileMap.h"
 
+CollisionType AABB(Collider *a, Collider *b);
+
 
 class Game {
 public:
@@ -25,7 +27,7 @@ private:
     bool debug, isRunning;
     Shader *tileShader, *tileDebugShader, *spriteShader, *spriteDebugShader;
 
-    CollisionType AABB(Collider *a, Collider *b);
+
 };
 
 
