@@ -85,38 +85,6 @@ int main()
     return 0;
 }
 
-void processInput(GLFWwindow *window, Sprite *sprite) {
-    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
-        sprite->playAnimation("numbers", 0);
-    }
-    else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        sprite->stopAnimation();
-    }
-    else if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-        sprite->resumeAnimation();
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-        renderMode = 0;
-    } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
-        renderMode = 1;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        sprite->transform->translate2d({0, -1});
-    }
-    else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        sprite->transform->translate2d({0, 1});
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        sprite->transform->translate2d({1, 0});
-    } else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        sprite->transform->translate2d({-1, 0});
-    }
-}
-
-
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

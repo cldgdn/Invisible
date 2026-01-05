@@ -1,5 +1,6 @@
 #include "Game.h"
 
+#include "Pathfinder.h"
 #include "GLFW/glfw3.h"
 #include "glm/gtc/type_ptr.hpp"
 
@@ -76,6 +77,21 @@ void Game::start() {
     int frames = 0;
     isRunning = true;
     player->transform->position = {40, 0};
+
+    Pathfinder p{};
+    Vec2 start{2, 0}, dest{ROOM_WIDTH - 1, 2};
+    std::vector<Vec2*> *path = p.findPath(activeRoom, &start, &dest);
+
+    for (Vec2* v : *path) {
+        printf("(%f, %f) -> ", v->x, v->y);
+    }
+
+    for (Vec2* v : *path) {
+        delete v;
+    }
+    path->clear();
+    delete path;
+
     //GAME LOOP
     while (isRunning) {
         frameStartTime = glfwGetTime();
@@ -147,7 +163,7 @@ void Game::start() {
 
         if (elapsedTime >= 1) {
             elapsedTime = 0;
-            printf("FPS: %d -- AVG frametime: %f\n", frames, totFrameTime / frames);
+            //printf("FPS: %d -- AVG frametime: %f\n", frames, totFrameTime / frames);
             totFrameTime = 0;
             frames = 0;
         }

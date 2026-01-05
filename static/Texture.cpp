@@ -70,8 +70,6 @@ void Texture::loadTextureFromFile() {
             default: format = GL_RGB; break;
         }
 
-        std::cout << nrChannels << std::endl;
-
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexImage2D(GL_TEXTURE_2D, 0, format, imgWidth, imgHeight, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);

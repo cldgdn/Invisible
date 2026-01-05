@@ -6,10 +6,11 @@
 #include "static/TileMap.h"
 
 struct PathNode {
+    int x, y;
     float hcost;
     float gcost;
     bool explored;
-    PathNode *prev;
+    PathNode *prev, *next;
 };
 
 struct PathNodeCompare {
@@ -28,10 +29,10 @@ public:
     Pathfinder();
     ~Pathfinder();
 
-    std::vector<Vec2*> findPath(Room *room, Vec2 start, Vec2 dest);
+    std::vector<Vec2*>* findPath(Room *room, Vec2 *start, Vec2 *dest);
 
 private:
-    void setupNodes();
+    void setupNodes(int destx, int desty);
     float heuristic(int nodex, int nodey, int destx, int desty);
     void explore(int nodex, int nodey);
 };
