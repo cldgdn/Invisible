@@ -11,12 +11,16 @@ Pathfinder::Pathfinder() : room(nullptr) {
 Pathfinder::~Pathfinder() {
 }
 
+/*
+ * Standard A* pathfinding implementation. Caches information about the last room used to pathfind in as to not reallocate the map each time.
+ */
 std::vector<Vec2 *>* Pathfinder::findPath(Room *room, Vec2 *start, Vec2 *dest) {
     int destx, desty, startx, starty;
     PathNode *currentNode;
     bool pathFound = false;
     std::vector<Vec2 *>* path = new std::vector<Vec2 *>();
 
+    //approximate destination and start coordinates to the tile
     destx = ((dest->x - std::floor(dest->x)) >= 0.5f) ? (int) std::floor(dest->x) + 1 : (int) std::floor(dest->x);
     desty = ((dest->y - std::floor(dest->y)) >= 0.5f) ? (int) std::floor(dest->y) + 1 : (int) std::floor(dest->y);
     startx = ((start->x - std::floor(start->x)) >= 0.5f) ? (int) std::floor(start->x) + 1 : (int) std::floor(start->x);
@@ -26,11 +30,25 @@ std::vector<Vec2 *>* Pathfinder::findPath(Room *room, Vec2 *start, Vec2 *dest) {
         return nullptr;
     }
 
+    //prepare the node map
     if (room != this->room) {
         this->room = room;
         setupNodes(destx, desty);
+    } else {
+        for (int i = 0; i < ROOM_HEIGHT; i++) {
+            for (int j = 0; j < ROOM_WIDTH; j++) {
+                if (nodes[i][j] != nullptr) {
+                    nodes[i][j]->explored = false;
+                    nodes[i][j]->gcost = 10000000000.0f;
+                    //these two might be unnecessary but this is just for making 100% sure
+                    nodes[i][j]->prev = nullptr;
+                    nodes[i][j]->next = nullptr;
+                }
+            }
+        }
     }
 
+    //initialize frontier to starting node
     nodes[starty][startx]->gcost = 0;
     frontier.push(nodes[starty][startx]);
 
@@ -38,9 +56,13 @@ std::vector<Vec2 *>* Pathfinder::findPath(Room *room, Vec2 *start, Vec2 *dest) {
         currentNode = frontier.top();
         frontier.pop();
 
+        //set here in order to ignore nodes that have been pushed to the frontier multiple times
+        //(a node might be reached via multiple paths. First time a node gets popped is via the
+        //cheapest path, so it gets ignored every time after that.)
         if (currentNode->explored) {
             continue;
         }
+
         if (currentNode->x == destx && currentNode->y == desty) {
             pathFound = true;
             break;
@@ -71,6 +93,9 @@ std::vector<Vec2 *>* Pathfinder::findPath(Room *room, Vec2 *start, Vec2 *dest) {
     return nullptr;
 }
 
+/*
+ * Generates the grid of PathNodes for the algorithm to operate with, relative to the currently set room.
+ */
 void Pathfinder::setupNodes(int destx, int desty) {
     for (int i = 0; i < ROOM_HEIGHT; i++) {
         for (int j = 0; j < ROOM_WIDTH; j++) {
@@ -90,6 +115,10 @@ float Pathfinder::heuristic(int nodex, int nodey, int destx, int desty) {
     return abs(nodex - destx) + abs(nodey - desty);
 }
 
+/*
+ * Explores a given node. This means it checks all neighboring nodes to see if they are unexplored and reachable.
+ * If they are, they get pushed to the frontier after calculating their gcost and setting up their prev pointer to this node.
+ */
 void Pathfinder::explore(int nodex, int nodey) {
     unsigned char (*tiles)[ROOM_WIDTH] = room->tileMap->tiles;
     bool admissible, diagonal;
@@ -104,7 +133,7 @@ void Pathfinder::explore(int nodex, int nodey) {
             admissible = false;
             diagonal = false;
 
-            //diagonal step logic
+            //diagonal step logic: diagonal only walkable if unobstructed (both adjacent tiles are not solid)
             if (abs(i) == abs(j)) {
                 diagonal = true;
                 if (
