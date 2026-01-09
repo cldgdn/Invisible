@@ -2,6 +2,7 @@
 #define INVISIBLE_GAME_H
 #include <vector>
 
+#include "Pathfinder.h"
 #include "Shader.h"
 #include "dynamic/Player.h"
 #include "GLFW/glfw3.h"
@@ -26,8 +27,7 @@ public:
 private:
     bool debug, isRunning;
     Shader *tileShader, *tileDebugShader, *spriteShader, *spriteDebugShader;
-
-
+    Pathfinder *pathfinder;
 };
 
 

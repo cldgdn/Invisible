@@ -145,6 +145,50 @@ void TileMap::greedyMeshTiles() {
             }
         }
     }
+
+    //create colliders to wall in the entire map
+
+    Collider *topWall = new Collider(
+        nullptr,
+        Vec2(0.0f - TILE_SIZE, 0.0f - TILE_SIZE),
+        (TILE_SIZE + 2) * ROOM_WIDTH,
+        TILE_SIZE,
+        CLAYER_TILES,
+        ColliderType::SOLID,
+        true
+    );
+    Collider *bottomWall = new Collider(
+        nullptr,
+        Vec2(0.0f - TILE_SIZE, TILE_SIZE * ROOM_HEIGHT),
+        (TILE_SIZE + 2) * ROOM_WIDTH,
+        TILE_SIZE,
+        CLAYER_TILES,
+        ColliderType::SOLID,
+        true
+    );
+    Collider *leftWall = new Collider(
+        nullptr,
+        Vec2(0.0f - TILE_SIZE, 0),
+        TILE_SIZE,
+        TILE_SIZE * ROOM_HEIGHT,
+        CLAYER_TILES,
+        ColliderType::SOLID,
+        true
+    );
+    Collider *rightWall = new Collider(
+        nullptr,
+        Vec2(TILE_SIZE * ROOM_WIDTH, 0),
+        TILE_SIZE,
+        TILE_SIZE * ROOM_HEIGHT,
+        CLAYER_TILES,
+        ColliderType::SOLID,
+        true
+    );
+
+    colliders.push_back(topWall);
+    colliders.push_back(bottomWall);
+    colliders.push_back(leftWall);
+    colliders.push_back(rightWall);
 }
 
 void TileMap::draw(bool debug) {

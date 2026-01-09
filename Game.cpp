@@ -18,6 +18,8 @@ Game::Game(GLFWwindow *window) : window(window) {
     spriteShader = new Shader("shaders\\vertex\\spriteVertex.vert", "shaders\\fragment\\visorSupport.frag");
     tileShader = new Shader("shaders\\vertex\\tilesVertex.vert", "shaders\\fragment\\visorSupport.frag");
 
+    pathfinder = new Pathfinder();
+
     rooms = std::vector<Room *>();
 
     bool solidMap1[ROOM_HEIGHT][ROOM_WIDTH] = {
@@ -26,9 +28,9 @@ Game::Game(GLFWwindow *window) : window(window) {
         {1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
         {1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0},
         {1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-        {1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-        {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+        {0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
     };
     bool *map1[ROOM_HEIGHT];
     for (int i = 0; i < ROOM_HEIGHT; i++) {
@@ -60,6 +62,7 @@ Game::~Game() {
     delete tileShader;
     delete spriteDebugShader;
     delete tileDebugShader;
+    delete pathfinder;
 
     for (Room *room : rooms) {
         delete room;
