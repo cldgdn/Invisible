@@ -16,15 +16,20 @@ Pathfinder::~Pathfinder() {
  */
 std::vector<Vec2 *>* Pathfinder::findPath(Room *room, Vec2 *start, Vec2 *dest) {
     int destx, desty, startx, starty;
+    float tdestx, tdesty, tstartx, tstarty;
     PathNode *currentNode;
     bool pathFound = false;
     std::vector<Vec2 *>* path = new std::vector<Vec2 *>();
 
     //approximate destination and start coordinates to the tile
-    destx = ((dest->x - std::floor(dest->x)) >= 0.5f) ? (int) std::floor(dest->x) + 1 : (int) std::floor(dest->x);
-    desty = ((dest->y - std::floor(dest->y)) >= 0.5f) ? (int) std::floor(dest->y) + 1 : (int) std::floor(dest->y);
-    startx = ((start->x - std::floor(start->x)) >= 0.5f) ? (int) std::floor(start->x) + 1 : (int) std::floor(start->x);
-    starty = ((start->y - std::floor(start->y)) >= 0.5f) ? (int) std::floor(start->y) + 1 : (int) std::floor(start->y);
+    tdestx = dest->x / TILE_SIZE;
+    tdesty = dest->y / TILE_SIZE;
+    tstartx = start->x / TILE_SIZE;
+    tstarty = start->y / TILE_SIZE;
+    destx = ((tdestx - std::floor(tdestx)) >= 0.5f) ? (int) std::floor(tdestx) + 1 : (int) std::floor(tdestx);
+    desty = ((tdesty - std::floor(tdesty)) >= 0.5f) ? (int) std::floor(tdesty) + 1 : (int) std::floor(tdesty);
+    startx = ((tstartx - std::floor(tstartx)) >= 0.5f) ? (int) std::floor(tstartx) + 1 : (int) std::floor(tstartx);
+    starty = ((tstarty - std::floor(tstarty)) >= 0.5f) ? (int) std::floor(tstarty) + 1 : (int) std::floor(tstarty);
 
     if (room == nullptr) {
         return nullptr;
@@ -49,6 +54,14 @@ std::vector<Vec2 *>* Pathfinder::findPath(Room *room, Vec2 *start, Vec2 *dest) {
     }
 
     //initialize frontier to starting node
+    while (!frontier.empty()) {
+        frontier.pop();
+    }
+
+    if (nodes[starty][startx] == nullptr || nodes[desty][destx] == nullptr) {
+        return nullptr;
+    }
+
     nodes[starty][startx]->gcost = 0;
     frontier.push(nodes[starty][startx]);
 
@@ -82,9 +95,13 @@ std::vector<Vec2 *>* Pathfinder::findPath(Room *room, Vec2 *start, Vec2 *dest) {
         currentNode = nodes[starty][startx];
 
         while (currentNode != nullptr) {
-            path->push_back(new Vec2{(float) currentNode->x, (float) currentNode->y});
+            path->push_back(new Vec2{(float) currentNode->x * TILE_SIZE, (float) currentNode->y * TILE_SIZE});
 
             currentNode = currentNode->next;
+        }
+
+        if (path->empty()) {
+            return nullptr;
         }
 
         return path;

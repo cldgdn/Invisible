@@ -17,7 +17,7 @@ public:
     float width, height;
     bool playing;
 
-    Animation(const std::string& atlas, float width, float height, Vec2 *frameLocations, int frameCount, int frameWidth, int frameHeight, int FPS);
+    Animation(const std::string& atlas, float width, float height, Vec2 *offset, Vec2 *frameLocations, int frameCount, int frameWidth, int frameHeight, int FPS);
     ~Animation();
 
     void bindTransform(Transform *transform);
@@ -33,6 +33,7 @@ private:
     Transform *transform;
     std::string atlas;
     Vec2 *frameLocations;
+    Vec2 *offset;
 
     Texture *texture;
 };

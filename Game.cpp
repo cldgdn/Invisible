@@ -1,5 +1,7 @@
 #include "Game.h"
 
+#include <cmath>
+
 #include "Pathfinder.h"
 #include "GLFW/glfw3.h"
 #include "glm/gtc/type_ptr.hpp"
@@ -15,8 +17,8 @@ static glm::mat4 projection = glm::ortho(
  * This is where objects are hard coded into the game.
  */
 Game::Game(GLFWwindow *window) : window(window) {
-    spriteShader = new Shader("shaders\\vertex\\spriteVertex.vert", "shaders\\fragment\\visorSupport.frag");
-    tileShader = new Shader("shaders\\vertex\\tilesVertex.vert", "shaders\\fragment\\visorSupport.frag");
+    spriteShader = new Shader("shaders/vertex/spriteVertex.vert", "shaders/fragment/visorSupport.frag");
+    tileShader = new Shader("shaders/vertex/tilesVertex.vert", "shaders/fragment/visorSupport.frag");
 
     pathfinder = new Pathfinder();
 
@@ -36,14 +38,38 @@ Game::Game(GLFWwindow *window) : window(window) {
     for (int i = 0; i < ROOM_HEIGHT; i++) {
         map1[i] = solidMap1[i];
     }
-    auto *tile1 = new TileMap(map1, "resources\\textures\\tiles\\debug\\");
+    auto *tile1 = new TileMap(map1, "resources/textures/tiles/debug/");
     auto *room1 = new Room(tile1, nullptr);
+    room1->guards = new std::vector<Guard *>();
+
+    Texture *guardTemp = new Texture(
+            "resources/textures/tiles/debug/wall/pixil-frame-0.png",
+            16, 16,
+            Texture::TileMode::STRETCH,
+            nullptr
+    );
+
+    std::vector<Vec2*> *guard0Patrol = new std::vector<Vec2*>();
+    guard0Patrol->push_back(new Vec2(13 * TILE_SIZE, 1 * TILE_SIZE));
+    guard0Patrol->push_back(new Vec2(10 * TILE_SIZE, 5 * TILE_SIZE));
+    guard0Patrol->push_back(new Vec2(10 * TILE_SIZE, 6 * TILE_SIZE));
+    guard0Patrol->push_back(new Vec2(8 * TILE_SIZE, 6 * TILE_SIZE));
+    guard0Patrol->push_back(new Vec2(8 * TILE_SIZE, 5 * TILE_SIZE));
+    guard0Patrol->push_back(new Vec2(8 * TILE_SIZE, 6 * TILE_SIZE));
+    guard0Patrol->push_back(new Vec2(3 * TILE_SIZE, 6 * TILE_SIZE));
+
+    Guard *guard0 = new Guard(this, guardTemp, nullptr, guard0Patrol);
+    guard0->transform->position.x = 13 * TILE_SIZE;
+    guard0->transform->position.y = 1 * TILE_SIZE;
+    guard0->isAlerted = true;
+
+    room1->guards->push_back(guard0);
 
     rooms.push_back(room1);
 
     activeRoom = room1;
 
-    Texture *playerSpriteSheet = new Texture("resources\\spritesheet.png", 80, 16, Texture::TileMode::STRETCH, nullptr);
+    Texture *playerSpriteSheet = new Texture("resources/spritesheet.png", 80, 16, Texture::TileMode::STRETCH, nullptr);
     Vec2 *frameLocations = new Vec2[]{ //this is not best practice but sunk cost demands its use.
         {0, 0},
         {1, 0},
@@ -51,9 +77,9 @@ Game::Game(GLFWwindow *window) : window(window) {
         {3, 0},
         {4, 0}
     };
-    Animation *playerAnim1 = new Animation("resources\\spritesheet.png", 16, 32, frameLocations, 5, 16, 16, 5);
+    Animation *playerAnim1 = new Animation("resources/spritesheet.png", 16, 32, new Vec2{0, -1.0 * TILE_SIZE}, frameLocations, 5, 16, 16, 5);
 
-    player = new Player(playerSpriteSheet, nullptr);
+    player = new Player(this, playerSpriteSheet, nullptr);
     player->addAnimation("walking", playerAnim1);
 }
 
@@ -76,24 +102,11 @@ Game::~Game() {
  */
 void Game::start() {
     double currentTime, lastFrame = 0;
-    double elapsedTime = 0, frameStartTime, frameEndTime, totFrameTime = 0;
+    double elapsedTime = 0, frameStartTime, frameEndTime, totFrameTime = 0, physTimeAccumulator = 0;
     int frames = 0;
+    long totframes = 0;
     isRunning = true;
     player->transform->position = {40, 0};
-
-    Pathfinder p{};
-    Vec2 start{2, 0}, dest{ROOM_WIDTH - 1, 2};
-    std::vector<Vec2*> *path = p.findPath(activeRoom, &start, &dest);
-
-    for (Vec2* v : *path) {
-        printf("(%f, %f) -> ", v->x, v->y);
-    }
-
-    for (Vec2* v : *path) {
-        delete v;
-    }
-    path->clear();
-    delete path;
 
     //GAME LOOP
     while (isRunning) {
@@ -103,30 +116,87 @@ void Game::start() {
         deltaTime = currentTime - lastFrame;
         lastFrame = currentTime;
 
+        //Prevent death spiral
+        if (deltaTime >= 0.25) {
+            deltaTime = 0.25;
+        }
 
+        physTimeAccumulator += deltaTime;
 
         //TODO: GAME LOGIC
 
-        player->processInput(window);
+        while (physTimeAccumulator >= FIXED_DT) {
+            for (Guard *guard : *(activeRoom->guards)) {
+                if (guard->isAlerted) {
+                    guard->isPathNeeded = true;
 
-        //COLLISION CHECKS
-        //run through each non-static collider and check for collisions against all other colliders on the same layers (will be split into sub-areas if it comes out to be too slow)
+                    if (guard->target == nullptr) {
+                        guard->target = new Vec2{player->transform->position.x, player->transform->position.y};
+                    }
+                    else if (abs(guard->target->x - player->transform->position.x) > TILE_SIZE || abs(guard->target->y - player->transform->position.y) > TILE_SIZE) {
+                        guard->target->x = player->transform->position.x;
+                        guard->target->y = player->transform->position.y;
+                    }
+                    else {
+                        guard->isPathNeeded = false;
+                    }
 
-        if (player->transform->translatePending) {
-            for (Collider *c : player->colliders) {
-                if (c->layerMask & CLAYER_TILES) {
-                    for (Collider *t : activeRoom->tileMap->colliders) {
-                        AABB(c, t);
+                    if (guard->isPathNeeded) {
+                        if (guard->currentPath != nullptr && guard->currentPath != guard->patrolPath) {
+                            for (Vec2 *v : *guard->currentPath) {
+                                delete v;
+                            }
+                            guard->currentPath->clear();
+                            delete guard->currentPath;
+                        }
+
+                        guard->currentPath = pathfinder->findPath(activeRoom, &guard->transform->position, guard->target);
+                        guard->reversePath = false;
+                        guard->currDest = 0;
+                    }
+                }
+                guard->moveTowardDest();
+            }
+
+            player->processInput(window);
+
+            //COLLISION CHECKS
+            //run through each non-static collider and check for collisions against all other colliders on the same layers (will be split into sub-areas if it comes out to be too slow)
+
+            if (player->transform->translatePending) {
+                for (Collider *c : player->colliders) {
+                    if (c->layersCollided & CLAYER_TILES) {
+                        for (Collider *t : activeRoom->tileMap->colliders) {
+                            AABB(c, t);
+                        }
+                    }
+                }
+
+                if (player->transform->translatePending) {
+                    player->transform->confirmTranslate2d();
+                }
+            }
+
+            for (Guard *guard : *activeRoom->guards) {
+                if (guard->transform->translatePending) {
+                    for (Collider *c : guard->colliders) {
+                        if (c->layersCollided & CLAYER_TILES) {
+                            for (Collider *t : activeRoom->tileMap->colliders) {
+                                AABB(c, t);
+                            }
+                        }
+                    }
+
+                    if (guard->transform->translatePending) {
+                        guard->transform->confirmTranslate2d();
                     }
                 }
             }
 
-            if (player->transform->translatePending) {
-                player->transform->confirmTranslate2d();
-            }
+            physTimeAccumulator -= FIXED_DT;
         }
 
-        player->transform->confirmTranslate2d(); //<- direct confirmations like this would not happen and would be handled by the colliders themselves based on collision outcome.
+
 
         //RENDERING
 
@@ -162,6 +232,7 @@ void Game::start() {
 
         totFrameTime += frameEndTime - frameStartTime;
         frames++;
+        totframes++;
         elapsedTime += deltaTime;
 
         if (elapsedTime >= 1) {
@@ -182,12 +253,13 @@ void Game::start() {
 void Game::stop() {
     isRunning = false;
 }
+
 /*
  * checks if a collides with b and what kind of collision it is. For solid collisions, it assumes that a is the collider moving INTO the solid object.
  * This assumption is viable since moving solid objects will only be checking against walls and other static objects by design.
  */
 CollisionType AABB(Collider *a, Collider *b) {
-    if (!(a->layerMask & b->layerMask))
+    if (!(a->layersCollided & b->layersOn))
         return CollisionType::NO_COLLISION;
 
     Vec2 apos = a->transform != nullptr ? a->transform->position + a->offset : a->offset;

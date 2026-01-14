@@ -4,8 +4,8 @@
 
 #include "Sprite.h"
 
-Sprite::Sprite(Texture *fallbackTexture, UVinfo *fallbackUVinfo) :
-    fallbackTexture(fallbackTexture), fallbackUVinfo(fallbackUVinfo), currentAnimation(nullptr)
+Sprite::Sprite(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo) :
+    game(game), fallbackTexture(fallbackTexture), fallbackUVinfo(fallbackUVinfo), currentAnimation(nullptr)
 {
     transform = new Transform();
 }

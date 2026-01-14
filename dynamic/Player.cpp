@@ -4,18 +4,20 @@
 
 using namespace PLAYER;
 
-Player::Player(Texture *fallbackTexture, UVinfo *fallbackUVinfo) : Sprite(fallbackTexture, fallbackUVinfo) {
+Player::Player(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo) : Sprite(game, fallbackTexture, fallbackUVinfo) {
     Collider *wallCollider = new Collider(
-        transform, {1, (int)TILE_SIZE + 1},
+        transform, {1, 1},
         TILE_SIZE - 2, TILE_SIZE - 2,
+        0,
         CLAYER_TILES | CLAYER_SOLID_PROPS,
         ColliderType::SOLID, false
     );
 
     Collider *hurtBox = new Collider(
-        transform, {0, 0},
+        transform, {0, -1.0 * TILE_SIZE},
         TILE_SIZE, TILE_SIZE * 2,
-        CLAYER_INTERACTION | CLAYER_PLAYER,
+        CLAYER_PLAYER,
+        CLAYER_INTERACTION | CLAYER_ENEMY,
         ColliderType::TRIGGER, false
     );
 
@@ -42,8 +44,8 @@ void Player::processInput(GLFWwindow *window) {
     }
 
     if (direction.x != 0.0f || direction.y != 0.0f) {
-        direction.x *= VELOCITY * deltaTime;
-        direction.y *= VELOCITY * deltaTime;
+        direction.x *= VELOCITY * FIXED_DT;
+        direction.y *= VELOCITY * FIXED_DT;
 
         transform->translate2d(direction);
 

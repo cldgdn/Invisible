@@ -10,14 +10,16 @@
 #include "Collider.h"
 #include "Transform.h"
 
+class Game;
 
 class Sprite {
 public:
+    Game *game;
     Transform *transform;
     std::vector<Collider*> colliders;
     const std::string *currentAnimation;
 
-    Sprite(Texture *fallbackTexture, UVinfo *fallbackUVinfo);
+    Sprite(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo);
     virtual ~Sprite();
 
     void draw();

@@ -11,6 +11,7 @@ extern unsigned int SCREEN_WIDTH, SCREEN_HEIGHT, LOGIC_SCREEN_WIDTH, LOGIC_SCREE
 constexpr unsigned int ROOM_WIDTH = 16;
 constexpr unsigned int ROOM_HEIGHT = 8;
 constexpr unsigned int TILE_SIZE = 16;
+constexpr double FIXED_DT = 1.0 / 60.0;
 
 constexpr unsigned short int
     CLAYER_TILES = 0b0000000000000001,

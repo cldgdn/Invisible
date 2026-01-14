@@ -137,6 +137,7 @@ void TileMap::greedyMeshTiles() {
                         TILE_SIZE * currWidth,
                         TILE_SIZE * currHeight,
                         CLAYER_TILES,
+                        0,
                         ColliderType::SOLID,
                         true
                     );
@@ -154,6 +155,7 @@ void TileMap::greedyMeshTiles() {
         (TILE_SIZE + 2) * ROOM_WIDTH,
         TILE_SIZE,
         CLAYER_TILES,
+        0,
         ColliderType::SOLID,
         true
     );
@@ -163,6 +165,7 @@ void TileMap::greedyMeshTiles() {
         (TILE_SIZE + 2) * ROOM_WIDTH,
         TILE_SIZE,
         CLAYER_TILES,
+        0,
         ColliderType::SOLID,
         true
     );
@@ -172,6 +175,7 @@ void TileMap::greedyMeshTiles() {
         TILE_SIZE,
         TILE_SIZE * ROOM_HEIGHT,
         CLAYER_TILES,
+        0,
         ColliderType::SOLID,
         true
     );
@@ -181,6 +185,7 @@ void TileMap::greedyMeshTiles() {
         TILE_SIZE,
         TILE_SIZE * ROOM_HEIGHT,
         CLAYER_TILES,
+        0,
         ColliderType::SOLID,
         true
     );

@@ -7,14 +7,17 @@
 #include "../globals.h"
 #include "GLFW/glfw3.h"
 
-Animation::Animation(const std::string& atlas, float width, float height, Vec2 *frameLocations, int frameCount, int frameWidth, int frameHeight, int FPS) :
-    atlas(atlas), width(width), height(height), frameLocations(frameLocations), frameCount(frameCount), frameWidth(frameWidth), frameHeight(frameHeight), FPS(FPS)
+Animation::Animation(const std::string& atlas, float width, float height, Vec2 *offset, Vec2 *frameLocations, int frameCount, int frameWidth, int frameHeight, int FPS) :
+    atlas(atlas), width(width), height(height), offset(offset), frameLocations(frameLocations), frameCount(frameCount), frameWidth(frameWidth), frameHeight(frameHeight), FPS(FPS)
 {
+    timer = 0;
+    frameProgress = 0;
     texture = new Texture(atlas, width, height, Texture::STRETCH, nullptr);
 }
 
 Animation::~Animation() {
     delete texture;
+    delete offset;
     free(frameLocations);
 }
 
@@ -46,9 +49,11 @@ void Animation::draw() {
     if (playing) {
         double TPF = 1.0f / FPS;
         if (timer >= TPF) {
-            timer = 0;
-            currentFrame++;
-            if (currentFrame >= frameCount) currentFrame = 0;
+            while (timer >= TPF) {
+                currentFrame++;
+                timer -= TPF;
+            }
+            if (currentFrame >= frameCount) currentFrame -= frameCount;
         }
 
         timer += deltaTime;
@@ -63,11 +68,11 @@ void Animation::draw() {
         height = frameHeight
     };
 
-    Vec2 pos;
+    Vec2 *pos;
     if (transform == nullptr)
-        pos = {0, 0};
+        pos = offset;
     else
-        pos = transform->position;
+        pos = &transform->position;
 
-    texture->draw(pos, &info, false);
+    texture->draw(*pos + *offset, &info, false);
 }

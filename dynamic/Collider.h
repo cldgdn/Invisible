@@ -24,11 +24,11 @@ public:
     Transform *transform;
     Vec2 offset;
     float width, height;
-    short unsigned int layerMask;
+    short unsigned int layersOn, layersCollided;
     ColliderType type;
     bool isActive, isStatic;
 
-    Collider(Transform *transform, Vec2 offset, float width, float height, unsigned int layerMask, ColliderType type, bool isStatic);
+    Collider(Transform *transform, Vec2 offset, float width, float height, unsigned int layersOn, unsigned int layersCollided, ColliderType type, bool isStatic);
 };
 
 #endif //INVISIBLE_COLLIDER_H

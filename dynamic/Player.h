@@ -11,7 +11,7 @@ namespace PLAYER {
 class Player : public Sprite {
 public:
 
-    Player(Texture *fallbackTexture, UVinfo *fallbackUVinfo);
+    Player(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo);
     ~Player();
 
     void processInput(GLFWwindow *window);
