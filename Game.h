@@ -17,6 +17,7 @@ public:
     std::vector<Room*> rooms;
     Room *activeRoom;
     Player *player;
+    Pathfinder *pathfinder;
     GLFWwindow *window;
 
     Game(GLFWwindow *window);
@@ -27,7 +28,6 @@ public:
 private:
     bool debug, isRunning;
     Shader *tileShader, *tileDebugShader, *spriteShader, *spriteDebugShader;
-    Pathfinder *pathfinder;
 };
 
 

@@ -6,6 +6,8 @@
 
 namespace GUARD {
     constexpr float VELOCITY = 2.0f * TILE_SIZE; //tiles / second
+    constexpr Vec2 RAYCAST_OFFSET = Vec2(TILE_SIZE * 0.5f, TILE_SIZE * 0.5f);
+    constexpr float VIEW_DISTANCE = TILE_SIZE * 10.0f;
 }
 
 class Guard : public Sprite {
@@ -20,6 +22,7 @@ public:
     ~Guard();
 
     void moveTowardDest();
+    void process();
 
 private:
     Vec2 getHeadingVersor();

@@ -57,6 +57,8 @@ add_executable(Invisible main.cpp
         dynamic/Player.h
         Pathfinder.cpp
         Pathfinder.h
+        raycasting.cpp
+        raycasting.h
 )
 
 #STB IMAGE

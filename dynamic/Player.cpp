@@ -14,7 +14,7 @@ Player::Player(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo) : S
     );
 
     Collider *hurtBox = new Collider(
-        transform, {0, -1.0 * TILE_SIZE},
+        transform, {0.0f, -1.0f * TILE_SIZE},
         TILE_SIZE, TILE_SIZE * 2,
         CLAYER_PLAYER,
         CLAYER_INTERACTION | CLAYER_ENEMY,

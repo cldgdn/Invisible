@@ -3,7 +3,12 @@
 #include <algorithm>
 #include <cmath>
 
+#include "Player.h"
 #include "../globals.h"
+#include "../Game.h"
+#include "../raycasting.h"
+
+using namespace GUARD;
 
 Guard::Guard(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo, std::vector<Vec2 *> *patrolPath) : Sprite(game, fallbackTexture, fallbackUVinfo) {
     this->patrolPath = patrolPath;
@@ -60,8 +65,9 @@ void Guard::moveTowardDest() {
     Vec2 *dest = (*currentPath)[currDest];
 
     bool move = true;
+    float minMotion = GUARD::VELOCITY * FIXED_DT;
 
-    if (currentPath->size() > 1 && abs(pos->x - dest->x) < 0.05 && abs(pos->y - dest->y) < 0.05) {
+    if (currentPath->size() > 1 && abs(pos->x - dest->x) < minMotion && abs(pos->y - dest->y) < minMotion) {
     //if (floor(pos->x) == floor(dest->x) && floor(pos->y) == floor(dest->y)) {
         if (isAlerted && currDest == currentPath->size() - 1) {
             move = false;
@@ -83,6 +89,57 @@ void Guard::moveTowardDest() {
 
         transform->translate2d(heading);
     }
+}
+
+void Guard::process() {
+    Player *player = game->player;
+    Pathfinder *pathfinder = game->pathfinder;
+    Room *activeRoom = game->activeRoom;
+
+    if (isAlerted) {
+        isPathNeeded = true;
+
+        if (target == nullptr) {
+            target = new Vec2{player->transform->position.x, player->transform->position.y};
+        }
+        else if (abs(target->x - player->transform->position.x) > TILE_SIZE || abs(target->y - player->transform->position.y) > TILE_SIZE) {
+            target->x = player->transform->position.x;
+            target->y = player->transform->position.y;
+        }
+        else {
+            isPathNeeded = false;
+        }
+
+        if (isPathNeeded) {
+            if (currentPath != nullptr && currentPath != patrolPath) {
+                for (Vec2 *v : *currentPath) {
+                    delete v;
+                }
+                currentPath->clear();
+                delete currentPath;
+            }
+
+            currentPath = pathfinder->findPath(activeRoom, &transform->position, target);
+            reversePath = false;
+            currDest = 0;
+        }
+    }
+    else {
+        Vec2 heading = getHeadingVersor();
+        Vec2 origin = transform->position + RAYCAST_OFFSET;
+
+        RaycastHit playerHit = raycast(&origin, &heading, VIEW_DISTANCE, CLAYER_PLAYER, &player->colliders);
+
+        if (playerHit.hit) {
+            RaycastHit tileHit = raycast(&origin, &heading, VIEW_DISTANCE, CLAYER_TILES, &activeRoom->tileMap->colliders);
+
+            if (!tileHit.hit || playerHit.distance < tileHit.distance) {
+                isAlerted = true;
+                std::cout << "PLAYER SPOTTED!!" << std::endl;
+            }
+        }
+    }
+    moveTowardDest();
 }
 
 Vec2 Guard::getHeadingVersor() {

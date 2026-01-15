@@ -3,6 +3,7 @@
 //
 
 #include "Sprite.h"
+#include "../Game.h"
 
 Sprite::Sprite(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo) :
     game(game), fallbackTexture(fallbackTexture), fallbackUVinfo(fallbackUVinfo), currentAnimation(nullptr)

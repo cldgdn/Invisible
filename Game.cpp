@@ -61,7 +61,6 @@ Game::Game(GLFWwindow *window) : window(window) {
     Guard *guard0 = new Guard(this, guardTemp, nullptr, guard0Patrol);
     guard0->transform->position.x = 13 * TILE_SIZE;
     guard0->transform->position.y = 1 * TILE_SIZE;
-    guard0->isAlerted = true;
 
     room1->guards->push_back(guard0);
 
@@ -127,35 +126,7 @@ void Game::start() {
 
         while (physTimeAccumulator >= FIXED_DT) {
             for (Guard *guard : *(activeRoom->guards)) {
-                if (guard->isAlerted) {
-                    guard->isPathNeeded = true;
-
-                    if (guard->target == nullptr) {
-                        guard->target = new Vec2{player->transform->position.x, player->transform->position.y};
-                    }
-                    else if (abs(guard->target->x - player->transform->position.x) > TILE_SIZE || abs(guard->target->y - player->transform->position.y) > TILE_SIZE) {
-                        guard->target->x = player->transform->position.x;
-                        guard->target->y = player->transform->position.y;
-                    }
-                    else {
-                        guard->isPathNeeded = false;
-                    }
-
-                    if (guard->isPathNeeded) {
-                        if (guard->currentPath != nullptr && guard->currentPath != guard->patrolPath) {
-                            for (Vec2 *v : *guard->currentPath) {
-                                delete v;
-                            }
-                            guard->currentPath->clear();
-                            delete guard->currentPath;
-                        }
-
-                        guard->currentPath = pathfinder->findPath(activeRoom, &guard->transform->position, guard->target);
-                        guard->reversePath = false;
-                        guard->currDest = 0;
-                    }
-                }
-                guard->moveTowardDest();
+                guard->process();
             }
 
             player->processInput(window);
