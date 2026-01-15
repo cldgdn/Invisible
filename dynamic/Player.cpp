@@ -11,8 +11,8 @@ Player::Player(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo) : S
 
     //COLLIDERS
     Collider *wallCollider = new Collider(
-        transform, {2, 5},
-        12, 8,
+        transform, {2, 4},
+        12, 10,
         0,
         CLAYER_TILES | CLAYER_SOLID_PROPS,
         ColliderType::SOLID, false
@@ -34,9 +34,9 @@ Player::Player(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo) : S
         ColliderType::TRIGGER, false
     );
 
-    colliders.push_back(wallCollider);
-    colliders.push_back(hurtBox);
-    colliders.push_back(punchBox);
+    colliders["wall"] = wallCollider;
+    colliders["hurtBox"] = hurtBox;
+    colliders["punchBox"] = punchBox;
 }
 
 Player::~Player() {
@@ -223,7 +223,7 @@ void Player::addAllAnimations() {
     };
     animation = new Animation(
         "resources/textures/sprites/player.png",
-        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE + 6},
         frameLocations, 1, 16, 32, 0
     );
     addAnimation("box", animation);

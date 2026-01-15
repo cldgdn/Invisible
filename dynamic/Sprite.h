@@ -1,7 +1,3 @@
-//
-// Created by clode on 19/11/2025.
-//
-
 #ifndef INVISIBLE_SPRITE_H
 #define INVISIBLE_SPRITE_H
 #include <vector>
@@ -20,7 +16,7 @@ class Sprite {
 public:
     Game *game;
     Transform *transform;
-    std::vector<Collider*> colliders;
+    std::unordered_map<std::string, Collider*> colliders;
     const std::string *currentAnimation;
     Facing facing;
 
@@ -28,7 +24,6 @@ public:
     virtual ~Sprite();
 
     void draw();
-    void addCollider(Collider *collider);
     void addAnimation(const std::string& name, Animation *animation);
     bool playAnimation(const std::string& name, int startFrame);
     void stopAnimation();

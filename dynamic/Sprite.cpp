@@ -15,7 +15,7 @@ Sprite::~Sprite() {
     delete transform;
     delete fallbackTexture;
 
-    for (Collider *collider : colliders) { delete collider; }
+    for (auto &[name, collider] : colliders) { delete collider; }
     for (auto &[name, animation] : animations) { delete animation; }
     colliders.clear();
     animations.clear();
@@ -30,10 +30,6 @@ void Sprite::draw() {
     } else if (fallbackTexture != nullptr) {
         fallbackTexture->draw(transform->position, fallbackUVinfo, false);
     }
-}
-
-void Sprite::addCollider(Collider *collider) {
-    colliders.push_back(collider);
 }
 
 void Sprite::addAnimation(const std::string &name, Animation *animation) {

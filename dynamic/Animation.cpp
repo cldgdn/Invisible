@@ -1,7 +1,3 @@
-//
-// Created by clode on 18/11/2025.
-//
-
 #include "Animation.h"
 
 #include "../globals.h"

@@ -131,11 +131,10 @@ void Game::start() {
             //run through each non-static collider and check for collisions against all other colliders on the same layers (will be split into sub-areas if it comes out to be too slow)
 
             if (player->transform->translatePending) {
-                for (Collider *c : player->colliders) {
-                    if (c->layersCollided & CLAYER_TILES) {
-                        for (Collider *t : activeRoom->tileMap->colliders) {
-                            AABB(c, t);
-                        }
+                Collider *c = player->colliders["wall"];
+                if (c->layersCollided & CLAYER_TILES) {
+                    for (Collider *t : activeRoom->tileMap->colliders) {
+                        AABB(c, t);
                     }
                 }
 
@@ -146,11 +145,10 @@ void Game::start() {
 
             for (Guard *guard : *activeRoom->guards) {
                 if (guard->transform->translatePending) {
-                    for (Collider *c : guard->colliders) {
-                        if (c->layersCollided & CLAYER_TILES) {
-                            for (Collider *t : activeRoom->tileMap->colliders) {
-                                AABB(c, t);
-                            }
+                    Collider *c = guard->colliders["wall"];
+                    if (c->layersCollided & CLAYER_TILES) {
+                        for (Collider *t : activeRoom->tileMap->colliders) {
+                            AABB(c, t);
                         }
                     }
 

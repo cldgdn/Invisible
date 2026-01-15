@@ -33,8 +33,8 @@ Guard::Guard(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo, std::
         ColliderType::TRIGGER, false
     );
 
-    colliders.push_back(wallCollider);
-    colliders.push_back(hurtBox);
+    colliders["wall"] = wallCollider;
+    colliders["hurtBox"] = hurtBox;
 
     currentPath = patrolPath;
     currDest = 0;
@@ -128,7 +128,10 @@ void Guard::process() {
         Vec2 heading = getHeadingVersor();
         Vec2 origin = transform->position + RAYCAST_OFFSET;
 
-        RaycastHit playerHit = raycast(&origin, &heading, VIEW_DISTANCE, CLAYER_PLAYER, &player->colliders);
+        std::vector<Collider*> v{};
+        v.push_back(player->colliders["hurtBox"]);
+
+        RaycastHit playerHit = raycast(&origin, &heading, VIEW_DISTANCE, CLAYER_PLAYER, &v);
 
         if (playerHit.hit) {
             RaycastHit tileHit = raycast(&origin, &heading, VIEW_DISTANCE, CLAYER_TILES, &activeRoom->tileMap->colliders);
