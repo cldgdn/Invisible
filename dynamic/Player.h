@@ -10,11 +10,14 @@ namespace PLAYER {
 
 class Player : public Sprite {
 public:
+    bool usingBox;
 
     Player(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo);
     ~Player();
 
     void processInput(GLFWwindow *window);
+private:
+    void addAllAnimations();
 };
 
 

@@ -46,7 +46,7 @@ void Animation::resume() {
 }
 
 void Animation::draw() {
-    if (playing) {
+    if (playing && FPS != 0) {
         double TPF = 1.0f / FPS;
         if (timer >= TPF) {
             while (timer >= TPF) {

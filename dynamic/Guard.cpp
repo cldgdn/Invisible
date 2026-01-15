@@ -124,7 +124,7 @@ void Guard::process() {
             currDest = 0;
         }
     }
-    else {
+    else if (!player->usingBox) {
         Vec2 heading = getHeadingVersor();
         Vec2 origin = transform->position + RAYCAST_OFFSET;
 

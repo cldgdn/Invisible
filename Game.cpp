@@ -19,6 +19,8 @@ static glm::mat4 projection = glm::ortho(
 Game::Game(GLFWwindow *window) : window(window) {
     spriteShader = new Shader("shaders/vertex/spriteVertex.vert", "shaders/fragment/visorSupport.frag");
     tileShader = new Shader("shaders/vertex/tilesVertex.vert", "shaders/fragment/visorSupport.frag");
+    spriteDebugShader = nullptr;
+    tileDebugShader = nullptr;
 
     pathfinder = new Pathfinder();
 
@@ -68,18 +70,12 @@ Game::Game(GLFWwindow *window) : window(window) {
 
     activeRoom = room1;
 
-    Texture *playerSpriteSheet = new Texture("resources/spritesheet.png", 80, 16, Texture::TileMode::STRETCH, nullptr);
-    Vec2 *frameLocations = new Vec2[]{ //this is not best practice but sunk cost demands its use.
-        {0, 0},
-        {1, 0},
-        {2, 0},
-        {3, 0},
-        {4, 0}
-    };
-    Animation *playerAnim1 = new Animation("resources/spritesheet.png", 16, 32, new Vec2{0, -1.0 * TILE_SIZE}, frameLocations, 5, 16, 16, 5);
-
-    player = new Player(this, playerSpriteSheet, nullptr);
-    player->addAnimation("walking", playerAnim1);
+    Texture *playerSpriteSheet = new Texture("resources/textures/sprites/player.png", 160, 64, Texture::TileMode::STRETCH, nullptr);
+    UVinfo *playerUVinfo = new UVinfo(
+        {0.0f, 0.0f},
+        160, 64
+    );
+    player = new Player(this, playerSpriteSheet, playerUVinfo);
 }
 
 Game::~Game() {

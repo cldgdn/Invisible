@@ -12,12 +12,17 @@
 
 class Game;
 
+enum Facing {
+    UP, DOWN, LEFT, RIGHT
+};
+
 class Sprite {
 public:
     Game *game;
     Transform *transform;
     std::vector<Collider*> colliders;
     const std::string *currentAnimation;
+    Facing facing;
 
     Sprite(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo);
     virtual ~Sprite();
