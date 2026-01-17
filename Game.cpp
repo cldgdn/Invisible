@@ -122,6 +122,7 @@ void Game::start() {
 
         while (physTimeAccumulator >= FIXED_DT) {
             for (Guard *guard : *(activeRoom->guards)) {
+                if (!guard->isActive) continue;
                 guard->process();
             }
 
@@ -129,6 +130,33 @@ void Game::start() {
 
             //COLLISION CHECKS
             //run through each non-static collider and check for collisions against all other colliders on the same layers (will be split into sub-areas if it comes out to be too slow)
+
+            if (player->isPunching > 0.0f) {
+                Collider *c = player->colliders["punchBox"];
+                for (Guard *guard : *(activeRoom->guards)) {
+                    if (!guard->isActive || !guard->isAlive) continue;
+
+                    bool washit = false;
+
+                    for (Guard *hit : player->guardsHit) {
+                        if (hit == guard) {
+                            washit = true;
+                        }
+                    }
+
+                    if (washit) continue;
+
+                    Collider *g = guard->colliders["hurtBox"];
+
+                    if (AABB(c, g) == CollisionType::TRIGGER_COLLISION) {
+                        player->guardsHit.push_back(guard);
+                        if (guard->isAlerted)
+                            guard->takeDamage(PLAYER::PUNCH_DAMAGE);
+                        else
+                            guard->die();
+                    }
+                }
+            }
 
             if (player->transform->translatePending) {
                 Collider *c = player->colliders["wall"];

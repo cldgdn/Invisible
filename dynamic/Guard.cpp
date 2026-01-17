@@ -10,7 +10,7 @@
 
 using namespace GUARD;
 
-Guard::Guard(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo, std::vector<Vec2 *> *patrolPath) : Sprite(game, fallbackTexture, fallbackUVinfo) {
+Guard::Guard(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo, std::vector<Vec2 *> *patrolPath) : Sprite(game, fallbackTexture, fallbackUVinfo), hp(3), isAlive(true) {
     this->patrolPath = patrolPath;
     this->isAlerted = false;
     this->isPathNeeded = false;
@@ -92,6 +92,8 @@ void Guard::moveTowardDest() {
 }
 
 void Guard::process() {
+    if (!isAlive) return;
+
     Player *player = game->player;
     Pathfinder *pathfinder = game->pathfinder;
     Room *activeRoom = game->activeRoom;
@@ -169,3 +171,17 @@ Vec2 Guard::getHeadingVersor() {
         heading.y / length
     };
 }
+
+void Guard::takeDamage(int dmg) {
+    hp -= dmg;
+    if (hp <= 0) {
+        die();
+    }
+}
+
+void Guard::die() {
+    isAlive = false;
+    playAnimation("death", 0);
+}
+
+void Guard::addAllAnimations() {}

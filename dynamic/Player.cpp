@@ -1,5 +1,7 @@
 #include "Player.h"
 
+#include <algorithm>
+
 #include "../globals.h"
 
 using namespace PLAYER;
@@ -11,8 +13,8 @@ Player::Player(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo) : S
 
     //COLLIDERS
     Collider *wallCollider = new Collider(
-        transform, {2, 4},
-        12, 10,
+        transform, {2, 5},
+        12, 8,
         0,
         CLAYER_TILES | CLAYER_SOLID_PROPS,
         ColliderType::SOLID, false
@@ -33,6 +35,7 @@ Player::Player(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo) : S
         CLAYER_ENEMY,
         ColliderType::TRIGGER, false
     );
+    punchBox->isActive = false;
 
     colliders["wall"] = wallCollider;
     colliders["hurtBox"] = hurtBox;
@@ -60,7 +63,42 @@ void Player::processInput(GLFWwindow *window) {
     //ACTIONS
     usingBox = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
 
-    if (usingBox) {
+    bool punchPressed = glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS;
+    bool punchJustPressed = !wasPunchPressed && punchPressed;
+    wasPunchPressed = punchPressed;
+
+    if (punchJustPressed && !usingBox && isPunching <= 0.0f) {
+        isPunching = PUNCH_DURATION;
+    }
+
+    colliders["punchBox"]->isActive = isPunching > 0.0f;
+
+    if (isPunching > 0.0f) {
+        isPunching -= FIXED_DT;
+
+        if (isPunching <= 0.0f) {
+            guardsHit.clear();
+        }
+
+        switch (facing) {
+            case UP:
+                playAnimation("punch_up", 0);
+                break;
+            case DOWN:
+                playAnimation("punch_down", 0);
+                break;
+            case LEFT:
+                playAnimation("punch_left", 0);
+                break;
+            case RIGHT:
+                playAnimation("punch_right", 0);
+                break;
+            default:
+                playAnimation("punch_down", 0);
+                break;
+        }
+    }
+    else if (usingBox) {
         playAnimation("box", 0);
     }
     else if (direction.x != 0.0f || direction.y != 0.0f) {
@@ -140,7 +178,7 @@ void Player::addAllAnimations() {
     Animation *animation = new Animation(
         "resources/textures/sprites/player.png",
         16, 32, new Vec2{0, -1.0 * TILE_SIZE},
-        frameLocations, 1, 16, 32, 0
+        frameLocations, 1, 16, 32, 0, false
     );
     addAnimation("idle_down", animation);
 
@@ -150,7 +188,7 @@ void Player::addAllAnimations() {
     animation = new Animation(
         "resources/textures/sprites/player.png",
         16, 32, new Vec2{0, -1.0 * TILE_SIZE},
-        frameLocations, 1, 16, 32, 0
+        frameLocations, 1, 16, 32, 0, false
     );
     addAnimation("idle_up", animation);
 
@@ -160,7 +198,7 @@ void Player::addAllAnimations() {
     animation = new Animation(
         "resources/textures/sprites/player.png",
         16, 32, new Vec2{0, -1.0 * TILE_SIZE},
-        frameLocations, 1, 16, 32, 0
+        frameLocations, 1, 16, 32, 0, false
     );
     addAnimation("idle_left", animation);
 
@@ -170,7 +208,7 @@ void Player::addAllAnimations() {
     animation = new Animation(
         "resources/textures/sprites/player.png",
         16, 32, new Vec2{0, -1.0 * TILE_SIZE},
-        frameLocations, 1, 16, 32, 0
+        frameLocations, 1, 16, 32, 0, false
     );
     addAnimation("idle_right", animation);
 
@@ -181,7 +219,7 @@ void Player::addAllAnimations() {
     animation = new Animation(
         "resources/textures/sprites/player.png",
         16, 32, new Vec2{0, -1.0 * TILE_SIZE},
-        frameLocations, 2, 16, 32, 4
+        frameLocations, 2, 16, 32, 4, true
     );
     addAnimation("walk_down", animation);
 
@@ -192,7 +230,7 @@ void Player::addAllAnimations() {
     animation = new Animation(
         "resources/textures/sprites/player.png",
         16, 32, new Vec2{0, -1.0 * TILE_SIZE},
-        frameLocations, 2, 16, 32, 4
+        frameLocations, 2, 16, 32, 4, true
     );
     addAnimation("walk_up", animation);
 
@@ -203,7 +241,7 @@ void Player::addAllAnimations() {
     animation = new Animation(
         "resources/textures/sprites/player.png",
         16, 32, new Vec2{0, -1.0 * TILE_SIZE},
-        frameLocations, 2, 16, 32, 4
+        frameLocations, 2, 16, 32, 4, true
     );
     addAnimation("walk_left", animation);
 
@@ -214,7 +252,7 @@ void Player::addAllAnimations() {
     animation = new Animation(
         "resources/textures/sprites/player.png",
         16, 32, new Vec2{0, -1.0 * TILE_SIZE},
-        frameLocations, 2, 16, 32, 4
+        frameLocations, 2, 16, 32, 4, true
     );
     addAnimation("walk_right", animation);
 
@@ -224,8 +262,48 @@ void Player::addAllAnimations() {
     animation = new Animation(
         "resources/textures/sprites/player.png",
         16, 32, new Vec2{0, -1.0 * TILE_SIZE + 6},
-        frameLocations, 1, 16, 32, 0
+        frameLocations, 1, 16, 32, 0, false
     );
     addAnimation("box", animation);
+
+    frameLocations = new Vec2[] {
+        {6, 1}
+    };
+    animation = new Animation(
+        "resources/textures/sprites/player.png",
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        frameLocations, 1, 16, 32, 0, false
+    );
+    addAnimation("punch_down", animation);
+
+    frameLocations = new Vec2[] {
+        {7, 1}
+    };
+    animation = new Animation(
+        "resources/textures/sprites/player.png",
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        frameLocations, 1, 16, 32, 0, false
+    );
+    addAnimation("punch_up", animation);
+
+    frameLocations = new Vec2[] {
+        {6, 0}
+    };
+    animation = new Animation(
+        "resources/textures/sprites/player.png",
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        frameLocations, 1, 16, 32, 0, false
+    );
+    addAnimation("punch_left", animation);
+
+    frameLocations = new Vec2[] {
+        {7, 0}
+    };
+    animation = new Animation(
+        "resources/textures/sprites/player.png",
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        frameLocations, 1, 16, 32, 0, false
+    );
+    addAnimation("punch_right", animation);
 
 }

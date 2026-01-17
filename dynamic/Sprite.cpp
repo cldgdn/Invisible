@@ -6,7 +6,7 @@
 #include "../Game.h"
 
 Sprite::Sprite(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo) :
-    game(game), fallbackTexture(fallbackTexture), fallbackUVinfo(fallbackUVinfo), currentAnimation(nullptr)
+    game(game), fallbackTexture(fallbackTexture), fallbackUVinfo(fallbackUVinfo), currentAnimation(nullptr), isActive(true), isVisible(true)
 {
     transform = new Transform();
 }
@@ -22,6 +22,8 @@ Sprite::~Sprite() {
 }
 
 void Sprite::draw() {
+    if (!isActive || !isVisible) return;
+
     if (currentAnimation != nullptr) {
         auto it = animations.find(*currentAnimation);
         if (it != animations.end()) {

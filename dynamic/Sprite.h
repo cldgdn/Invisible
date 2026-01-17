@@ -19,6 +19,7 @@ public:
     std::unordered_map<std::string, Collider*> colliders;
     const std::string *currentAnimation;
     Facing facing;
+    bool isActive, isVisible;
 
     Sprite(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo);
     virtual ~Sprite();

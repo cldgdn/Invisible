@@ -15,17 +15,20 @@ public:
     std::vector<Vec2*> *patrolPath;
     std::vector<Vec2*> *currentPath;
     Vec2 *target;
-    int currDest;
-    bool isAlerted, isPathNeeded, reversePath;
+    int currDest, hp;
+    bool isAlive, isAlerted, isPathNeeded, reversePath;
 
     Guard(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo, std::vector<Vec2*> *patrolPath);
     ~Guard();
 
     void moveTowardDest();
     void process();
+    void takeDamage(int dmg);
+    void die();
 
 private:
     Vec2 getHeadingVersor();
+    void addAllAnimations();
 };
 
 
