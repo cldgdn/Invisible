@@ -8,12 +8,14 @@ namespace GUARD {
     constexpr float VELOCITY = 2.0f * TILE_SIZE; //tiles / second
     constexpr Vec2 RAYCAST_OFFSET = Vec2(TILE_SIZE * 0.5f, TILE_SIZE * 0.5f);
     constexpr float VIEW_DISTANCE = TILE_SIZE * 10.0f;
+    constexpr double MARK_DISPLAY_TIMER = 1.0f;
 }
 
 class Guard : public Sprite {
 public:
     std::vector<Vec2*> *patrolPath;
     std::vector<Vec2*> *currentPath;
+    Sprite *alertMark;
     Vec2 *target;
     int currDest, hp;
     bool isAlive, isAlerted, isPathNeeded, reversePath;
@@ -22,11 +24,16 @@ public:
     ~Guard();
 
     void moveTowardDest();
+
+    void draw();
+
     void process();
     void takeDamage(int dmg);
     void die();
 
 private:
+    double displayMark = 0;
+
     Vec2 getHeadingVersor();
     void addAllAnimations();
 };

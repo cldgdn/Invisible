@@ -17,8 +17,12 @@ Guard::Guard(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo, std::
     this->reversePath = false;
     this->target = nullptr;
 
+    alertMark = new Sprite(game, nullptr, nullptr);
+    delete alertMark->transform;
+    alertMark->transform = transform;
     addAllAnimations();
     playAnimation("idle_down", 0);
+    alertMark->playAnimation("alert", 0);
 
     Collider *wallCollider = new Collider(
         transform, {1, 1},
@@ -29,8 +33,8 @@ Guard::Guard(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo, std::
     );
 
     Collider *hurtBox = new Collider(
-        transform, {0, -1.0 * TILE_SIZE},
-        TILE_SIZE, TILE_SIZE * 2,
+        transform, {1, -1.0 * TILE_SIZE},
+        TILE_SIZE - 2, TILE_SIZE * 2,
         CLAYER_ENEMY,
         CLAYER_PLAYER,
         ColliderType::TRIGGER, false
@@ -83,7 +87,6 @@ void Guard::moveTowardDest() {
                 reversePath = !reversePath;
             }
         }
-        //printf("Guard going toward (%f, %f)\n", (*currentPath)[currDest]->x / TILE_SIZE, (*currentPath)[currDest]->y / TILE_SIZE);
     }
 
     if (move){
@@ -95,6 +98,14 @@ void Guard::moveTowardDest() {
     }
 }
 
+void Guard::draw() {
+    Sprite::draw();
+
+    if (displayMark > 0.0f) {
+        alertMark->draw();
+    }
+}
+
 void Guard::process() {
     if (!isAlive) return;
 
@@ -102,6 +113,8 @@ void Guard::process() {
     Pathfinder *pathfinder = game->pathfinder;
     Room *activeRoom = game->activeRoom;
     Vec2 heading = getHeadingVersor();
+
+    if (displayMark > 0.0f) displayMark -= FIXED_DT;
 
     if (isAlerted) {
         isPathNeeded = true;
@@ -144,6 +157,7 @@ void Guard::process() {
 
             if (!tileHit.hit || playerHit.distance < tileHit.distance) {
                 isAlerted = true;
+                displayMark = MARK_DISPLAY_TIMER;
                 std::cout << "PLAYER SPOTTED!!" << std::endl;
             }
         }
@@ -336,4 +350,12 @@ void Guard::addAllAnimations() {
         frameLocations, 2, 16, 32, 4, true
     );
     addAnimation("walk_right", animation);
+
+    frameLocations = new Vec2[] {{0,0}};
+    animation = new Animation(
+        "resources/textures/sprites/alert.png",
+        16, 16, new Vec2{8, -1.0 * TILE_SIZE - 8},
+        frameLocations, 1, 16,  16, 0, false
+    );
+    alertMark->addAnimation("alert", animation);
 }

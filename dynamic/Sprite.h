@@ -24,7 +24,7 @@ public:
     Sprite(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo);
     virtual ~Sprite();
 
-    void draw();
+    virtual void draw();
     void addAnimation(const std::string& name, Animation *animation);
     bool playAnimation(const std::string& name, int startFrame);
     void stopAnimation();
