@@ -17,6 +17,9 @@ Guard::Guard(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo, std::
     this->reversePath = false;
     this->target = nullptr;
 
+    addAllAnimations();
+    playAnimation("idle_down", 0);
+
     Collider *wallCollider = new Collider(
         transform, {1, 1},
         TILE_SIZE - 2, TILE_SIZE - 2,
@@ -63,6 +66,7 @@ void Guard::moveTowardDest() {
 
     Vec2 *pos = &transform->position;
     Vec2 *dest = (*currentPath)[currDest];
+    Vec2 heading;
 
     bool move = true;
     float minMotion = GUARD::VELOCITY * FIXED_DT;
@@ -83,7 +87,7 @@ void Guard::moveTowardDest() {
     }
 
     if (move){
-        Vec2 heading = getHeadingVersor();
+        heading = getHeadingVersor();
         heading.x *= GUARD::VELOCITY * FIXED_DT;
         heading.y *= GUARD::VELOCITY * FIXED_DT;
 
@@ -97,6 +101,7 @@ void Guard::process() {
     Player *player = game->player;
     Pathfinder *pathfinder = game->pathfinder;
     Room *activeRoom = game->activeRoom;
+    Vec2 heading = getHeadingVersor();
 
     if (isAlerted) {
         isPathNeeded = true;
@@ -127,7 +132,6 @@ void Guard::process() {
         }
     }
     else if (!player->usingBox) {
-        Vec2 heading = getHeadingVersor();
         Vec2 origin = transform->position + RAYCAST_OFFSET;
 
         std::vector<Collider*> v{};
@@ -144,6 +148,69 @@ void Guard::process() {
             }
         }
     }
+
+    if (heading.x == 0 && heading.y == 0) {
+        switch (facing) {
+            case UP:
+                playAnimation("idle_up", 0);
+                break;
+            case DOWN:
+                playAnimation("idle_down", 0);
+                break;
+            case LEFT:
+                playAnimation("idle_left", 0);
+                break;
+            case RIGHT:
+                playAnimation("idle_right", 0);
+                break;
+            default:
+                playAnimation("idle_up", 0);
+        }
+    } else {
+        if (abs(heading.x) >= abs(heading.y)) {
+            if (heading.x > 0)
+                facing = RIGHT;
+            else
+                facing = LEFT;
+        }
+        else {
+            if (heading.y > 0)
+                facing = DOWN;
+            else
+                facing = UP;
+        }
+
+        switch (facing) {
+            case RIGHT:
+                if (*currentAnimation != "walk_right")
+                    playAnimation("walk_right", 0);
+                else if (!animations[*currentAnimation]->playing)
+                    resumeAnimation();
+                break;
+            case LEFT:
+                if (*currentAnimation != "walk_left")
+                    playAnimation("walk_left", 0);
+                else if (!animations[*currentAnimation]->playing)
+                    resumeAnimation();
+                break;
+            case DOWN:
+                if (*currentAnimation != "walk_down")
+                    playAnimation("walk_down", 0);
+                else if (!animations[*currentAnimation]->playing)
+                    resumeAnimation();
+                break;
+            case UP:
+                if (*currentAnimation != "walk_up")
+                    playAnimation("walk_up", 0);
+                else if (!animations[*currentAnimation]->playing)
+                    resumeAnimation();
+                break;
+            default:
+                playAnimation("idle_down", 0);
+                break;
+        }
+    }
+
     moveTowardDest();
 }
 
@@ -181,7 +248,92 @@ void Guard::takeDamage(int dmg) {
 
 void Guard::die() {
     isAlive = false;
-    playAnimation("death", 0);
+    isActive = false;
+    isVisible = false;
 }
 
-void Guard::addAllAnimations() {}
+void Guard::addAllAnimations() {
+    Vec2 *frameLocations = new Vec2[] {
+        {0, 1}
+    };
+    Animation *animation = new Animation(
+        "resources/textures/sprites/guard.png",
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        frameLocations, 1, 16, 32, 0, false
+    );
+    addAnimation("idle_down", animation);
+
+    frameLocations = new Vec2[] {
+        {1, 1}
+    };
+    animation = new Animation(
+        "resources/textures/sprites/guard.png",
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        frameLocations, 1, 16, 32, 0, false
+    );
+    addAnimation("idle_up", animation);
+
+    frameLocations = new Vec2[] {
+        {0, 0}
+    };
+    animation = new Animation(
+        "resources/textures/sprites/guard.png",
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        frameLocations, 1, 16, 32, 0, false
+    );
+    addAnimation("idle_left", animation);
+
+    frameLocations = new Vec2[] {
+        {1, 0}
+    };
+    animation = new Animation(
+        "resources/textures/sprites/guard.png",
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        frameLocations, 1, 16, 32, 0, false
+    );
+    addAnimation("idle_right", animation);
+
+    frameLocations = new Vec2[] {
+        {2, 1},
+        {4, 1}
+    };
+    animation = new Animation(
+        "resources/textures/sprites/guard.png",
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        frameLocations, 2, 16, 32, 4, true
+    );
+    addAnimation("walk_down", animation);
+
+    frameLocations = new Vec2[] {
+        {3, 1},
+        {5, 1}
+    };
+    animation = new Animation(
+        "resources/textures/sprites/guard.png",
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        frameLocations, 2, 16, 32, 4, true
+    );
+    addAnimation("walk_up", animation);
+
+    frameLocations = new Vec2[] {
+        {2, 0},
+        {4, 0}
+    };
+    animation = new Animation(
+        "resources/textures/sprites/guard.png",
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        frameLocations, 2, 16, 32, 4, true
+    );
+    addAnimation("walk_left", animation);
+
+    frameLocations = new Vec2[] {
+        {3, 0},
+        {5, 0}
+    };
+    animation = new Animation(
+        "resources/textures/sprites/guard.png",
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        frameLocations, 2, 16, 32, 4, true
+    );
+    addAnimation("walk_right", animation);
+}
