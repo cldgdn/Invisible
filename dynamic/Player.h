@@ -14,7 +14,7 @@ namespace PLAYER {
 
 class Player : public Sprite {
 public:
-    bool usingBox;
+    bool usingBox, isDead = false;
     double isPunching;
     std::vector<Guard*> guardsHit; //guards that have been hit by the current punch (so that they don't die in 3 frames from the same lingering hitbox
 
@@ -22,6 +22,7 @@ public:
     ~Player();
 
     void processInput(GLFWwindow *window);
+    void die();
 private:
     bool wasPunchPressed = false;
     void addAllAnimations();

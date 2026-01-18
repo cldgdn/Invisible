@@ -4,4 +4,10 @@ Room::Room(TileMap *tileMap, std::vector<Guard *> *guards) : tileMap(tileMap), g
 }
 
 Room::~Room() {
+    delete tileMap;
+    for (Guard *g : *guards) {
+        delete g;
+    }
+    guards->clear();
+    delete guards;
 }

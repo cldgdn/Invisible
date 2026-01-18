@@ -126,6 +126,10 @@ void Game::start() {
                 guard->process();
             }
 
+            for (Bullet *bullet : (activeRoom->bullets)) {
+                bullet->process();
+            }
+
             player->processInput(window);
 
             //COLLISION CHECKS
@@ -186,6 +190,39 @@ void Game::start() {
                 }
             }
 
+            for (Bullet *bullet : activeRoom->bullets) {
+                if (!bullet->isActive) continue;
+
+                if (bullet->transform->translatePending) {
+                    Collider *c = bullet->colliders["hitBox"];
+                    for (auto &[name, t] : player->colliders) {
+                        if (AABB(c, t) == CollisionType::TRIGGER_COLLISION) {
+                            player->die();
+                            bullet->isActive = false;
+                            break;
+                        }
+                    }
+
+                    if (!bullet->isActive) continue;
+
+                    for (Collider *t : activeRoom->tileMap->colliders) {
+                        if (AABB(c, t) == CollisionType::SOLID_COLLISION) {
+                            bullet->isActive = false;
+                            break;
+                        }
+                    }
+                }
+
+                for (auto b = activeRoom->bullets.begin(); b != activeRoom->bullets.end();) {
+                    if (!(*b)->isActive) {
+                        delete *b;
+                        b = activeRoom->bullets.erase(b);
+                    } else {
+                        ++b;
+                    }
+                }
+            }
+
             physTimeAccumulator -= FIXED_DT;
         }
 
@@ -218,6 +255,10 @@ void Game::start() {
 
         player->draw();
 
+        for (Bullet *b : activeRoom->bullets) {
+            b->draw();
+        }
+
         glfwSwapBuffers(window);
         glfwPollEvents();
 
@@ -235,7 +276,7 @@ void Game::start() {
             frames = 0;
         }
 
-        isRunning = !glfwWindowShouldClose(window);
+        isRunning = !glfwWindowShouldClose(window) && isRunning;
     }
 }
 

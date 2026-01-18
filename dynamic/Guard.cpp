@@ -143,6 +143,13 @@ void Guard::process() {
             reversePath = false;
             currDest = 0;
         }
+
+        if (fireTimer > 0) {
+            fireTimer -= FIXED_DT;
+        } else {
+            fire();
+            fireTimer = FIRE_COOLDOWN;
+        }
     }
     else if (!player->usingBox) {
         Vec2 origin = transform->position + RAYCAST_OFFSET;
@@ -251,6 +258,49 @@ Vec2 Guard::getHeadingVersor() {
         heading.x / length,
         heading.y / length
     };
+}
+
+Vec2 Guard::getBulletDirection() {
+    Vec2 *pos = &transform->position;
+    Vec2 *dest = &game->player->transform->position;
+
+    Vec2 heading {
+        dest->x - pos->x,
+        dest->y - pos->y
+    };
+
+    float length = std::sqrt(heading.x * heading.x + heading.y * heading.y);
+
+    if (length == 0.0f) {
+        return {0.0f, 0.0};
+    }
+
+    return {
+        heading.x / length,
+        heading.y / length
+    };
+}
+
+void Guard::fire() {
+    Bullet *b = new Bullet(game, getBulletDirection());
+    switch (facing) {
+        case RIGHT:
+            b->transform->position = transform->position + BULLET_OFFSET_RIGHT;
+            break;
+        case LEFT:
+            b->transform->position = transform->position + BULLET_OFFSET_LEFT;
+            break;
+        case DOWN:
+            b->transform->position = transform->position + BULLET_OFFSET_DOWN;
+            break;
+        case UP:
+            b->transform->position = transform->position + BULLET_OFFSET_UP;
+            break;
+        default:
+            b->transform->position = transform->position + BULLET_OFFSET_DOWN;
+            break;
+    }
+    game->activeRoom->bullets.push_back(b);
 }
 
 void Guard::takeDamage(int dmg) {

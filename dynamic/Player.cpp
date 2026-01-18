@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "../Game.h"
 #include "../globals.h"
 
 using namespace PLAYER;
@@ -22,7 +23,7 @@ Player::Player(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo) : S
 
     Collider *hurtBox = new Collider(
         transform, {2, (-1.0f * TILE_SIZE) + 2},
-        TILE_SIZE - 4, TILE_SIZE * 2 + 4,
+        TILE_SIZE - 4, TILE_SIZE * 2 - 4,
         CLAYER_PLAYER,
         CLAYER_INTERACTION | CLAYER_ENEMY,
         ColliderType::TRIGGER, false
@@ -46,6 +47,8 @@ Player::~Player() {
 }
 
 void Player::processInput(GLFWwindow *window) {
+    if (isDead) return;
+
     //MOVEMENT
     Vec2 direction = {0.0f, 0.0f};
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
@@ -170,6 +173,14 @@ void Player::processInput(GLFWwindow *window) {
         }
     }
 }
+
+void Player::die() {
+    if (isDead) return;
+
+    playAnimation("death", 0);
+    isDead = true;
+}
+
 
 void Player::addAllAnimations() {
     Vec2 *frameLocations = new Vec2[]{ //this is not best practice but sunk cost demands its use.
@@ -306,4 +317,18 @@ void Player::addAllAnimations() {
     );
     addAnimation("punch_right", animation);
 
+    frameLocations = new Vec2[] {
+        {8, 0},
+        {9, 0},
+        {9, 0},
+        {9, 0}
+    };
+    animation = new Animation(
+        "resources/textures/sprites/player.png",
+        16, 32, new Vec2{0, -1.0 * TILE_SIZE},
+        frameLocations, 4, 16, 32, 1, false);
+    animation->callback = [this]() {
+        this->game->stop();
+    };
+    addAnimation("death", animation);
 }

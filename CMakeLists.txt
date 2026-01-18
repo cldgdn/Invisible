@@ -59,6 +59,8 @@ add_executable(Invisible main.cpp
         Pathfinder.h
         raycasting.cpp
         raycasting.h
+        dynamic/Bullet.cpp
+        dynamic/Bullet.h
 )
 
 #STB IMAGE
