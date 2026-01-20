@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "Player.h"
+#include "../AudioManager.h"
 #include "../globals.h"
 #include "../Game.h"
 #include "../raycasting.h"
@@ -146,12 +147,12 @@ void Guard::process() {
 
         if (fireTimer > 0) {
             fireTimer -= FIXED_DT;
-        } else {
+        } else if (!player->isDead) {
             fire();
             fireTimer = FIRE_COOLDOWN;
         }
     }
-    else if (!player->usingBox) {
+    else if (!player->usingBox && !player->isDead) {
         Vec2 origin = transform->position + RAYCAST_OFFSET;
 
         std::vector<Collider*> v{};
@@ -301,6 +302,8 @@ void Guard::fire() {
             break;
     }
     game->activeRoom->bullets.push_back(b);
+
+    AudioManager::getInstance().playSound("gun", 0.5f, false);
 }
 
 void Guard::takeDamage(int dmg) {

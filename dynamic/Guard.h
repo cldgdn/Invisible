@@ -9,7 +9,7 @@ namespace GUARD {
     constexpr Vec2 RAYCAST_OFFSET = Vec2(TILE_SIZE * 0.5f, TILE_SIZE * 0.5f);
     constexpr float VIEW_DISTANCE = TILE_SIZE * 10.0f;
     constexpr double MARK_DISPLAY_TIMER = 1.0f;
-    constexpr double FIRE_COOLDOWN = 0.75f;
+    constexpr double FIRE_COOLDOWN = 0.8f;
     constexpr Vec2 BULLET_OFFSET_DOWN = Vec2(5, -3);
     constexpr Vec2 BULLET_OFFSET_UP = Vec2(5, -1.0 *TILE_SIZE);
     constexpr Vec2 BULLET_OFFSET_RIGHT = Vec2(TILE_SIZE, -2);

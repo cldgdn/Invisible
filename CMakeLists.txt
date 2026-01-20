@@ -19,6 +19,44 @@ set(GLAD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/glad)
 add_library(glad ${GLAD_DIR}/src/glad.c)
 target_include_directories(glad PUBLIC ${GLAD_DIR}/include)
 
+# --- SoLoud ---
+set(SOLOUD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/soloud/soloud)
+set(STB_VORBIS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/stb_vorbis)
+
+file(GLOB_RECURSE SOLOUD_SOURCES
+        ${SOLOUD_DIR}/src/core/*.cpp
+        ${SOLOUD_DIR}/src/audiosource/*.cpp
+        ${SOLOUD_DIR}/src/filter/*.cpp
+)
+
+file(GLOB SOLOUD_BACKEND
+        ${SOLOUD_DIR}/src/backend/winmm/soloud_winmm.cpp
+)
+
+add_library(soloud STATIC
+        ${SOLOUD_SOURCES}
+        ${SOLOUD_DIR}/src/backend/winmm/soloud_winmm.cpp
+        ${STB_VORBIS_DIR}/stb_vorbis.c
+)
+
+target_include_directories(soloud PUBLIC
+        ${SOLOUD_DIR}/include
+        ${STB_VORBIS_DIR}
+)
+
+target_compile_definitions(soloud PRIVATE
+        WITH_WINMM
+        SOLOUD_NO_WASAPI
+        SOLOUD_NO_OPENAL
+        SOLOUD_NO_SDL2
+        SOLOUD_NO_ALSA
+        SOLOUD_NO_JACK
+        SOLOUD_NO_PORTAUDIO
+        SOLOUD_NO_COREAUDIO
+)
+
+target_link_libraries(soloud winmm)
+
 #GLM
 FetchContent_Declare(
         glm
@@ -61,6 +99,8 @@ add_executable(Invisible main.cpp
         raycasting.h
         dynamic/Bullet.cpp
         dynamic/Bullet.h
+        AudioManager.cpp
+        AudioManager.h
 )
 
 #STB IMAGE
@@ -68,7 +108,7 @@ target_include_directories(Invisible PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image
 )
 
-target_link_libraries(Invisible PRIVATE glfw glad glm)
+target_link_libraries(Invisible PRIVATE glfw glad glm soloud)
 
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE opengl32)

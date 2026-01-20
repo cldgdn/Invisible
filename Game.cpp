@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+#include "AudioManager.h"
 #include "Pathfinder.h"
 #include "GLFW/glfw3.h"
 #include "glm/gtc/type_ptr.hpp"
@@ -21,6 +22,9 @@ Game::Game(GLFWwindow *window) : window(window) {
     tileShader = new Shader("shaders/vertex/tilesVertex.vert", "shaders/fragment/visorSupport.frag");
     spriteDebugShader = nullptr;
     tileDebugShader = nullptr;
+
+    AudioManager* am = &AudioManager::getInstance();
+    am->loadSound("gun", "resources/sounds/gun.wav");
 
     pathfinder = new Pathfinder();
 
