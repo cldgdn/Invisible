@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "../AudioManager.h"
 #include "../Game.h"
 #include "../globals.h"
 
@@ -177,6 +178,7 @@ void Player::processInput(GLFWwindow *window) {
 void Player::die() {
     if (isDead) return;
 
+    AudioManager::getInstance().playSound("death_scream", 1.0f, false);
     playAnimation("death", 0);
     isDead = true;
 }
@@ -319,14 +321,14 @@ void Player::addAllAnimations() {
 
     frameLocations = new Vec2[] {
         {8, 0},
-        {9, 0},
+        {8, 0},
         {9, 0},
         {9, 0}
     };
     animation = new Animation(
         "resources/textures/sprites/player.png",
         16, 32, new Vec2{0, -1.0 * TILE_SIZE},
-        frameLocations, 4, 16, 32, 1, false);
+        frameLocations, 4, 16, 32, 1.14f, false);
     animation->callback = [this]() {
         this->game->stop();
     };

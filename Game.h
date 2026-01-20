@@ -28,6 +28,8 @@ public:
 private:
     bool debug, isRunning;
     Shader *tileShader, *tileDebugShader, *spriteShader, *spriteDebugShader;
+
+    void buildRooms();
 };
 
 

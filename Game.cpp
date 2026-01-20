@@ -25,54 +25,12 @@ Game::Game(GLFWwindow *window) : window(window) {
 
     AudioManager* am = &AudioManager::getInstance();
     am->loadSound("gun", "resources/sounds/gun.wav");
+    am->loadSound("death_scream", "resources/sounds/death_scream.wav");
+    am->loadSound("!", "resources/sounds/!.wav");
 
     pathfinder = new Pathfinder();
 
-    rooms = std::vector<Room *>();
-
-    bool solidMap1[ROOM_HEIGHT][ROOM_WIDTH] = {
-        {1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-        {1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-        {1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-        {1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-        {0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-    };
-    bool *map1[ROOM_HEIGHT];
-    for (int i = 0; i < ROOM_HEIGHT; i++) {
-        map1[i] = solidMap1[i];
-    }
-    auto *tile1 = new TileMap(map1, "resources/textures/tiles/debug/");
-    auto *room1 = new Room(tile1, nullptr);
-    room1->guards = new std::vector<Guard *>();
-
-    Texture *guardTemp = new Texture(
-            "resources/textures/tiles/debug/wall/pixil-frame-0.png",
-            16, 16,
-            Texture::TileMode::STRETCH,
-            nullptr
-    );
-
-    std::vector<Vec2*> *guard0Patrol = new std::vector<Vec2*>();
-    guard0Patrol->push_back(new Vec2(13 * TILE_SIZE, 1 * TILE_SIZE));
-    guard0Patrol->push_back(new Vec2(10 * TILE_SIZE, 5 * TILE_SIZE));
-    guard0Patrol->push_back(new Vec2(10 * TILE_SIZE, 6 * TILE_SIZE));
-    guard0Patrol->push_back(new Vec2(8 * TILE_SIZE, 6 * TILE_SIZE));
-    guard0Patrol->push_back(new Vec2(8 * TILE_SIZE, 5 * TILE_SIZE));
-    guard0Patrol->push_back(new Vec2(8 * TILE_SIZE, 6 * TILE_SIZE));
-    guard0Patrol->push_back(new Vec2(3 * TILE_SIZE, 6 * TILE_SIZE));
-
-    Guard *guard0 = new Guard(this, guardTemp, nullptr, guard0Patrol);
-    guard0->transform->position.x = 13 * TILE_SIZE;
-    guard0->transform->position.y = 1 * TILE_SIZE;
-
-    room1->guards->push_back(guard0);
-
-    rooms.push_back(room1);
-
-    activeRoom = room1;
+    buildRooms();
 
     Texture *playerSpriteSheet = new Texture("resources/textures/sprites/player.png", 160, 64, Texture::TileMode::STRETCH, nullptr);
     UVinfo *playerUVinfo = new UVinfo(
@@ -377,3 +335,60 @@ CollisionType AABB(Collider *a, Collider *b) {
     return CollisionType::NO_COLLISION;
 }
 
+void Game::buildRooms() {
+    rooms = std::vector<Room *>();
+
+    bool solidMap1[ROOM_HEIGHT][ROOM_WIDTH] = {
+        {1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+        {1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+        {1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+        {1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+        {0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+        {1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+        {1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+        {1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+        {0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+    };
+    bool *map1[ROOM_HEIGHT];
+    for (int i = 0; i < ROOM_HEIGHT; i++) {
+        map1[i] = solidMap1[i];
+    }
+    auto *tile1 = new TileMap(map1, "resources/textures/tiles/debug/");
+    auto *room1 = new Room(tile1, nullptr);
+    room1->guards = new std::vector<Guard *>();
+
+    Texture *guardTemp = new Texture(
+            "resources/textures/tiles/debug/wall/pixil-frame-0.png",
+            16, 16,
+            Texture::TileMode::STRETCH,
+            nullptr
+    );
+
+    std::vector<Vec2*> *guard0Patrol = new std::vector<Vec2*>();
+    guard0Patrol->push_back(new Vec2(13 * TILE_SIZE, 1 * TILE_SIZE));
+    guard0Patrol->push_back(new Vec2(10 * TILE_SIZE, 5 * TILE_SIZE));
+    guard0Patrol->push_back(new Vec2(10 * TILE_SIZE, 6 * TILE_SIZE));
+    guard0Patrol->push_back(new Vec2(8 * TILE_SIZE, 6 * TILE_SIZE));
+    guard0Patrol->push_back(new Vec2(8 * TILE_SIZE, 5 * TILE_SIZE));
+    guard0Patrol->push_back(new Vec2(8 * TILE_SIZE, 6 * TILE_SIZE));
+    guard0Patrol->push_back(new Vec2(3 * TILE_SIZE, 6 * TILE_SIZE));
+
+    Guard *guard0 = new Guard(this, guardTemp, nullptr, guard0Patrol);
+    guard0->transform->position.x = 13 * TILE_SIZE;
+    guard0->transform->position.y = 1 * TILE_SIZE;
+
+    room1->guards->push_back(guard0);
+
+    rooms.push_back(room1);
+
+    activeRoom = room1;
+}

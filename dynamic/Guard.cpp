@@ -164,8 +164,10 @@ void Guard::process() {
             RaycastHit tileHit = raycast(&origin, &heading, VIEW_DISTANCE, CLAYER_TILES, &activeRoom->tileMap->colliders);
 
             if (!tileHit.hit || playerHit.distance < tileHit.distance) {
+                AudioManager::getInstance().playSound("!", 0.7f, false);
                 isAlerted = true;
                 displayMark = MARK_DISPLAY_TIMER;
+                fireTimer = FIRE_COOLDOWN / 2;
                 std::cout << "PLAYER SPOTTED!!" << std::endl;
             }
         }

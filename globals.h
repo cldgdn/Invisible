@@ -8,8 +8,8 @@
 extern double deltaTime;
 extern unsigned int SCREEN_WIDTH, SCREEN_HEIGHT, LOGIC_SCREEN_WIDTH, LOGIC_SCREEN_HEIGHT;
 
-constexpr unsigned int ROOM_WIDTH = 16;
-constexpr unsigned int ROOM_HEIGHT = 8;
+constexpr unsigned int ROOM_WIDTH = 32;
+constexpr unsigned int ROOM_HEIGHT = 18;
 constexpr unsigned int TILE_SIZE = 16;
 constexpr double FIXED_DT = 1.0 / 60.0;
 

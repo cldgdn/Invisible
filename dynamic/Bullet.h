@@ -7,7 +7,7 @@
 #include "Sprite.h"
 
 namespace BULLET {
-    constexpr float BULLET_SPEED = 3.0f; //tiles / second
+    constexpr float BULLET_SPEED = 4.0f; //tiles / second
 }
 
 class Bullet : public Sprite {
