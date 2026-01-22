@@ -5,6 +5,7 @@
 #include "TileMap.h"
 
 #include <bitset>
+#include <ranges>
 
 #include "../Shader.h"
 #include <glm/glm.hpp>
@@ -13,7 +14,7 @@
 #include "../globals.h"
 #include "glm/gtc/type_ptr.hpp"
 
-TileMap::TileMap(bool **solidMap, const std::string& path) : path(path) {
+TileMap::TileMap(bool **solidMap, const std::string& path, bool simpleFloor) : path(path), simpleFloor(simpleFloor) {
     remapTiles(solidMap);
     greedyMeshTiles();
 }
@@ -93,6 +94,16 @@ unsigned char TileMap::mapNeighbours(bool **solidMap, int x, int y) {
 void TileMap::greedyMeshTiles() {
     int currWidth = 0, currHeight = 0, tempWidth = 0;
 
+    if (simpleFloor) {
+        std::string tileTex = path + "floor.png";
+        Texture *floor = new Texture(
+            tileTex,
+            TILE_SIZE * ROOM_WIDTH, TILE_SIZE * ROOM_HEIGHT,
+            Texture::TILE, new Vec2{0, 0}
+        );
+        textures.push_back(floor);
+    }
+
     for (int i = 0; i < ROOM_HEIGHT; i++) {
         for (int j = 0; j < ROOM_WIDTH; j++) {
             if (!(tiles[i][j] & MESHED_BIT)) {
@@ -120,15 +131,17 @@ void TileMap::greedyMeshTiles() {
                     }
                 }
 
-                std::string tileTex = path + ((tiles[i][j] & SOLID_BIT) ? "wall\\" : "floor\\") + "pixil-frame-" + std::to_string(tiles[i][j] & TEXTURE_ID_MASK) + ".png";
-                Texture *t = new Texture(
-                    tileTex,
-                    TILE_SIZE * currWidth,
-                    TILE_SIZE * currHeight,
-                    Texture::TILE,
-                    new Vec2(j * TILE_SIZE, i * TILE_SIZE)
-                );
-                textures.push_back(t);
+                if (!simpleFloor || tiles[i][j] & SOLID_BIT) {
+                    std::string tileTex = path + ((tiles[i][j] & SOLID_BIT) ? "wall/" : "floor/") + "pixil-frame-" + std::to_string(tiles[i][j] & TEXTURE_ID_MASK) + ".png";
+                    Texture *t = new Texture(
+                        tileTex,
+                        TILE_SIZE * currWidth,
+                        TILE_SIZE * currHeight,
+                        Texture::TILE,
+                        new Vec2(j * TILE_SIZE, i * TILE_SIZE)
+                    );
+                    textures.push_back(t);
+                }
 
                 if (tiles[i][j] & SOLID_BIT) {
                     Collider *c = new Collider(

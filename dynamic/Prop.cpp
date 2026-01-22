@@ -5,30 +5,30 @@
 #include "Prop.h"
 #include "../globals.h"
 
-Prop::Prop(Game *game, PropType type) : Sprite(game, nullptr, nullptr) {
+Prop::Prop(Game *game, PropType type, const std::string& postfix) : Sprite(game, nullptr, nullptr) {
     switch (type) {
         case TRUCK:
-            makeTruck();
+            makeTruck(postfix);
             break;
         case BOX:
-            makeBox();
+            makeBox(postfix);
             break;
         case BOX_SMALL:
-            makeBoxSmall();
+            makeBoxSmall(postfix);
             break;
         case TANK:
-            makeTank();
+            makeTank(postfix);
             break;
         default:
-            makeBox();
+            makeBox(postfix);
             break;
     }
 }
 
-void Prop::makeTruck() {
+void Prop::makeTruck(const std::string& postfix) {
     Vec2 *frameLocation = new Vec2[] {{0, 0}};
     Animation *animation = new Animation(
-        "resources/textures/props/truck.png",
+        "resources/textures/props/truck" + postfix + ".png",
         32, 64, new Vec2{0, 0},
         frameLocation, 1, 32, 64, 0, false
     );
@@ -36,10 +36,10 @@ void Prop::makeTruck() {
     playAnimation("anim", 0);
 }
 
-void Prop::makeBox() {
+void Prop::makeBox(const std::string& postfix) {
     Vec2 *frameLocation = new Vec2[] {{0, 0}};
     Animation *animation = new Animation(
-        "resources/textures/props/box.png",
+        "resources/textures/props/box" + postfix + ".png",
         32, 32, new Vec2{0, 0},
         frameLocation, 1, 32, 32, 0, false
     );
@@ -47,10 +47,10 @@ void Prop::makeBox() {
     playAnimation("anim", 0);
 }
 
-void Prop::makeBoxSmall() {
+void Prop::makeBoxSmall(const std::string& postfix) {
     Vec2 *frameLocation = new Vec2[] {{0, 0}};
     Animation *animation = new Animation(
-        "resources/textures/props/box_small.png",
+        "resources/textures/props/box_small" + postfix + ".png",
         16, 32, new Vec2{0, 0},
         frameLocation, 1, 16, 32, 0, false
     );
@@ -58,10 +58,10 @@ void Prop::makeBoxSmall() {
     playAnimation("anim", 0);
 }
 
-void Prop::makeTank() {
+void Prop::makeTank(const std::string& postfix) {
     Vec2 *frameLocation = new Vec2[] {{0, 0}};
     Animation *animation = new Animation(
-        "resources/textures/props/tank.png",
+        "resources/textures/props/tank" + postfix + ".png",
         48, 64, new Vec2{0, 0},
         frameLocation, 1, 48, 64, 0, false
     );

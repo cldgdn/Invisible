@@ -17,14 +17,14 @@ class Prop : public Sprite {
 public:
     std::function<void(Game*)> action = nullptr;
 
-    Prop(Game *game, PropType type);
+    Prop(Game *game, PropType type, const std::string& postfix = "");
     ~Prop() override = default;
 
 private:
-    void makeTruck();
-    void makeBox();
-    void makeBoxSmall();
-    void makeTank();
+    void makeTruck(const std::string& postfix);
+    void makeBox(const std::string& postfix);
+    void makeBoxSmall(const std::string& postfix);
+    void makeTank(const std::string& postfix);
 };
 
 

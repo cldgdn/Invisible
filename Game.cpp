@@ -233,7 +233,7 @@ void Game::start() {
 
         if (elapsedTime >= 1) {
             elapsedTime = 0;
-            printf("FPS: %d -- AVG frametime: %f\n", frames, totFrameTime / frames);
+            //printf("FPS: %d -- AVG frametime: %f\n", frames, totFrameTime / frames);
             totFrameTime = 0;
             frames = 0;
         }
@@ -373,46 +373,46 @@ Room* makeOutsideRoom(Game *game)  {
     for (int i = 0; i < ROOM_HEIGHT; i++) {
         map1[i] = solidMap1[i];
     }
-    auto *tile = new TileMap(map1, "resources/textures/tiles/debug/");
+    auto *tile = new TileMap(map1, "resources/textures/tiles/outside/", true);
     auto *room = new Room({1, 2}, tile);
 
-    Prop *p = new Prop(game, TRUCK);
+    Prop *p = new Prop(game, TRUCK, "_outside");
     p->transform->position = {4 * TILE_SIZE, 2 * TILE_SIZE};
     room->props.push_back(p);
 
-    p = new Prop(game, TRUCK);
+    p = new Prop(game, TRUCK, "_outside");
     p->transform->position = {8 * TILE_SIZE, 2 * TILE_SIZE};
     room->props.push_back(p);
 
-    p = new Prop(game, TRUCK);
+    p = new Prop(game, TRUCK, "_outside");
     p->transform->position = {12 * TILE_SIZE, 2 * TILE_SIZE};
     room->props.push_back(p);
 
-    p = new Prop(game, TRUCK);
+    p = new Prop(game, TRUCK, "_outside");
     p->transform->position = {16 * TILE_SIZE, 2 * TILE_SIZE};
     room->props.push_back(p);
 
-    p = new Prop(game, TRUCK);
+    p = new Prop(game, TRUCK, "_outside");
     p->transform->position = {4 * TILE_SIZE, 9 * TILE_SIZE};
     room->props.push_back(p);
 
-    p = new Prop(game, TRUCK);
+    p = new Prop(game, TRUCK, "_outside");
     p->transform->position = {8 * TILE_SIZE, 9 * TILE_SIZE};
     room->props.push_back(p);
 
-    p = new Prop(game, TRUCK);
+    p = new Prop(game, TRUCK, "_outside");
     p->transform->position = {12 * TILE_SIZE, 9 * TILE_SIZE};
     room->props.push_back(p);
 
-    p = new Prop(game, TRUCK);
+    p = new Prop(game, TRUCK, "_outside");
     p->transform->position = {16 * TILE_SIZE, 9 * TILE_SIZE};
     room->props.push_back(p);
 
-    p = new Prop(game, TANK);
+    p = new Prop(game, TANK, "_outside");
     p->transform->position = {21 * TILE_SIZE, 2 * TILE_SIZE};
     room->props.push_back(p);
 
-    p = new Prop(game, TANK);
+    p = new Prop(game, TANK, "_outside");
     p->transform->position = {21 * TILE_SIZE, 9 * TILE_SIZE};
     room->props.push_back(p);
 

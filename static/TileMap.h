@@ -80,8 +80,9 @@ public:
     std::vector<Texture*> textures;
     std::vector<Collider*> colliders;
     const std::string& path;
+    bool simpleFloor;
 
-    TileMap(bool **solidMap, const std::string& path);
+    TileMap(bool **solidMap, const std::string& path, bool simpleFloor);
     ~TileMap();
 
     void draw(bool debug);
