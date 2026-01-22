@@ -1,13 +1,20 @@
 #include "Room.h"
 
-Room::Room(TileMap *tileMap, std::vector<Guard *> *guards) : tileMap(tileMap), guards(guards) {
+Room::Room(Vec2 playerStartPos, TileMap *tileMap) : playerStartPos(playerStartPos), tileMap(tileMap) {
 }
 
 Room::~Room() {
     delete tileMap;
-    for (Guard *g : *guards) {
+    for (Guard *g : guards) {
         delete g;
     }
-    guards->clear();
-    delete guards;
+    guards.clear();
+    for (Prop *prop : props) {
+        delete prop;
+    }
+    props.clear();
+    for (Bullet *bullet : bullets) {
+        delete bullet;
+    }
+    bullets.clear();
 }

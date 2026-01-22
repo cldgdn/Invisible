@@ -7,7 +7,7 @@
 class Guard;
 
 namespace PLAYER {
-    constexpr float VELOCITY = 2.0f * TILE_SIZE; // tiles / second
+    constexpr float VELOCITY = 2.5f * TILE_SIZE; // tiles / second
     constexpr double PUNCH_DURATION = 0.15f; //how long the player stays in a punch animation
     constexpr int PUNCH_DAMAGE = 1;
 }

@@ -10,11 +10,12 @@
 #include "static/TileMap.h"
 
 CollisionType AABB(Collider *a, Collider *b);
+Room* makeOutsideRoom(Game *game);
 
 
 class Game {
 public:
-    std::vector<Room*> rooms;
+    std::unordered_map<std::string, Room*> rooms;
     Room *activeRoom;
     Player *player;
     Pathfinder *pathfinder;
@@ -25,6 +26,7 @@ public:
 
     void start();
     void stop();
+    void setRoom(const std::string& name);
 private:
     bool debug, isRunning;
     Shader *tileShader, *tileDebugShader, *spriteShader, *spriteDebugShader;

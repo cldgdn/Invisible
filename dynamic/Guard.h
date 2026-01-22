@@ -23,9 +23,9 @@ public:
     Sprite *alertMark;
     Vec2 *target;
     int currDest, hp;
-    bool isAlive, isAlerted, isPathNeeded, reversePath;
+    bool isAlive, isAlerted, isPathNeeded, reversePath, loopPath;
 
-    Guard(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo, std::vector<Vec2*> *patrolPath);
+    Guard(Game *game);
     ~Guard();
 
     void moveTowardDest();

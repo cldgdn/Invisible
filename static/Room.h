@@ -3,15 +3,18 @@
 #include "TileMap.h"
 #include "../dynamic/Bullet.h"
 #include "../dynamic/Guard.h"
+#include "../dynamic/Prop.h"
 
 
 class Room {
 public:
+    Vec2 playerStartPos;
     TileMap *tileMap;
-    std::vector<Guard*> *guards;
+    std::vector<Guard*> guards;
+    std::vector<Prop*> props;
     std::vector<Bullet*> bullets;
 
-    Room(TileMap *tileMap, std::vector<Guard*> *guards);
+    Room(Vec2 playerStartPos, TileMap *tileMap);
     ~Room();
 private:
 

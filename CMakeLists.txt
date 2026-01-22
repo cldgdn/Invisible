@@ -101,6 +101,8 @@ add_executable(Invisible main.cpp
         dynamic/Bullet.h
         AudioManager.cpp
         AudioManager.h
+        dynamic/Prop.cpp
+        dynamic/Prop.h
 )
 
 #STB IMAGE

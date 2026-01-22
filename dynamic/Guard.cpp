@@ -11,11 +11,12 @@
 
 using namespace GUARD;
 
-Guard::Guard(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo, std::vector<Vec2 *> *patrolPath) : Sprite(game, fallbackTexture, fallbackUVinfo), hp(3), isAlive(true) {
-    this->patrolPath = patrolPath;
+Guard::Guard(Game *game) : Sprite(game, nullptr, nullptr), hp(3), isAlive(true) {
+    this->patrolPath = new std::vector<Vec2*>();
     this->isAlerted = false;
     this->isPathNeeded = false;
     this->reversePath = false;
+    this->loopPath = false;
     this->target = nullptr;
 
     alertMark = new Sprite(game, nullptr, nullptr);
@@ -82,10 +83,18 @@ void Guard::moveTowardDest() {
             move = false;
         }
         else {
-            currDest = currDest + (reversePath ? -1 : 1);
+            if (loopPath) {
+                if (currDest == currentPath->size() - 1)
+                    currDest = 0;
+                else {
+                    currDest++;
+                }
+            } else {
+                currDest = currDest + (reversePath ? -1 : 1);
 
-            if (currDest == 0 || currDest == currentPath->size() - 1) {
-                reversePath = !reversePath;
+                if (currDest == 0 || currDest == currentPath->size() - 1) {
+                    reversePath = !reversePath;
+                }
             }
         }
     }
