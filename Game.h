@@ -11,6 +11,7 @@
 
 CollisionType AABB(Collider *a, Collider *b);
 Room* makeOutsideRoom(Game *game);
+Room* makeEntranceRoom(Game *game);
 
 
 class Game {

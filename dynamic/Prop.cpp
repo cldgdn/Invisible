@@ -19,6 +19,9 @@ Prop::Prop(Game *game, PropType type, const std::string& postfix) : Sprite(game,
         case TANK:
             makeTank(postfix);
             break;
+        case DESK:
+            makeDesk(postfix);
+            break;
         default:
             makeBox(postfix);
             break;
@@ -64,6 +67,17 @@ void Prop::makeTank(const std::string& postfix) {
         "resources/textures/props/tank" + postfix + ".png",
         48, 64, new Vec2{0, 0},
         frameLocation, 1, 48, 64, 0, false
+    );
+    addAnimation("anim", animation);
+    playAnimation("anim", 0);
+}
+
+void Prop::makeDesk(const std::string &postfix) {
+    Vec2 *frameLocation = new Vec2[] {{0, 0}};
+    Animation *animation = new Animation(
+        "resources/textures/props/desk" + postfix + ".png",
+        32, 32, new Vec2{0, 0},
+        frameLocation, 1, 32, 32, 0, false
     );
     addAnimation("anim", animation);
     playAnimation("anim", 0);

@@ -10,7 +10,8 @@ enum PropType {
     TRUCK,
     BOX,
     BOX_SMALL,
-    TANK
+    TANK,
+    DESK
 };
 
 class Prop : public Sprite {
@@ -25,6 +26,7 @@ private:
     void makeBox(const std::string& postfix);
     void makeBoxSmall(const std::string& postfix);
     void makeTank(const std::string& postfix);
+    void makeDesk(const std::string& postfix);
 };
 
 
