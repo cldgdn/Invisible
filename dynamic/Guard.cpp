@@ -127,20 +127,21 @@ void Guard::process() {
     if (displayMark > 0.0f) displayMark -= FIXED_DT;
 
     if (isAlerted) {
-        isPathNeeded = true;
+        if (isPathNeeded > 0) {
+            isPathNeeded -= FIXED_DT;
+        } else {
+            isPathNeeded = NEW_PATH_COOLDOWN;
 
-        if (target == nullptr) {
-            target = new Vec2{player->transform->position.x, player->transform->position.y};
-        }
-        else if (abs(target->x - player->transform->position.x) > TILE_SIZE || abs(target->y - player->transform->position.y) > TILE_SIZE) {
-            target->x = player->transform->position.x;
-            target->y = player->transform->position.y;
-        }
-        else {
-            isPathNeeded = false;
-        }
+            if (target == nullptr) {
+                target = new Vec2{player->transform->position.x, player->transform->position.y};
+            }
+            else if (abs(target->x - player->transform->position.x) > TILE_SIZE || abs(target->y - player->transform->position.y) > TILE_SIZE) {
+                target->x = player->transform->position.x;
+                target->y = player->transform->position.y;
+            } else {
+                goto no_path;
+            }
 
-        if (isPathNeeded) {
             if (currentPath != nullptr && currentPath != patrolPath) {
                 for (Vec2 *v : *currentPath) {
                     delete v;
@@ -154,6 +155,7 @@ void Guard::process() {
             currDest = 0;
         }
 
+        no_path:
         if (fireTimer > 0) {
             fireTimer -= FIXED_DT;
         } else if (!player->isDead) {
@@ -177,6 +179,7 @@ void Guard::process() {
                 isAlerted = true;
                 displayMark = MARK_DISPLAY_TIMER;
                 fireTimer = FIRE_COOLDOWN / 2;
+                isPathNeeded = 0.0f;
                 std::cout << "PLAYER SPOTTED!!" << std::endl;
             }
         }

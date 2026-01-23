@@ -10,6 +10,7 @@ namespace GUARD {
     constexpr float VIEW_DISTANCE = TILE_SIZE * 10.0f;
     constexpr double MARK_DISPLAY_TIMER = 1.0f;
     constexpr double FIRE_COOLDOWN = 0.8f;
+    constexpr double NEW_PATH_COOLDOWN = 1.5f;
     constexpr Vec2 BULLET_OFFSET_DOWN = Vec2(5, -3);
     constexpr Vec2 BULLET_OFFSET_UP = Vec2(5, -1.0 *TILE_SIZE);
     constexpr Vec2 BULLET_OFFSET_RIGHT = Vec2(TILE_SIZE, -2);
@@ -23,7 +24,8 @@ public:
     Sprite *alertMark;
     Vec2 *target;
     int currDest, hp;
-    bool isAlive, isAlerted, isPathNeeded, reversePath, loopPath;
+    bool isAlive, isAlerted, reversePath, loopPath;
+    double isPathNeeded;
 
     Guard(Game *game);
     ~Guard();
