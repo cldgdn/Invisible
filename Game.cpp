@@ -83,7 +83,7 @@ void Game::start() {
 
         physTimeAccumulator += (isOnMenu) ? 0 : deltaTime;
 
-        //TODO: GAME LOGIC
+        //GAME LOGIC
 
         if (isOnMenu) {
             menu->processInput(window);
