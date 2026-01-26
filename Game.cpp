@@ -81,7 +81,7 @@ void Game::start() {
             deltaTime = 0.25;
         }
 
-        physTimeAccumulator += deltaTime;
+        physTimeAccumulator += (isOnMenu) ? 0 : deltaTime;
 
         //TODO: GAME LOGIC
 

@@ -53,7 +53,7 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "No one hears a word", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Invisible - Game", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -98,10 +98,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 bool checkForLoadBearingSnakes() {
     std::string paths[] = {
-        "download.jpg",
-        "data\\7mojo6.jpg",
-        "dynamic\\snake1.jpg",
-        "shaders\\vertex\\photo_2025-11-07_16-36-46.jpg"
+        "resources/loadbearing/download.jpg",
+        "resources/loadbearing/7mojo6.jpg",
+        "resources/loadbearing/snake1.jpg",
+        "resources/loadbearing/photo_2025-11-07_16-36-46.jpg"
     };
 
     size_t sizes[] = {
