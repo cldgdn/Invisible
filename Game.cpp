@@ -17,7 +17,7 @@ static glm::mat4 projection = glm::ortho(
  * When creating a new Game instance, all shaders, rooms, sprites, tilemaps and everything else is created.
  * This is where objects are hard coded into the game.
  */
-Game::Game(GLFWwindow *window) : window(window) {
+Game::Game(GLFWwindow *window) : window(window), isOnMenu(true) {
     spriteShader = new Shader("shaders/vertex/spriteVertex.vert", "shaders/fragment/visorSupport.frag");
     tileShader = new Shader("shaders/vertex/tilesVertex.vert", "shaders/fragment/visorSupport.frag");
     spriteDebugShader = nullptr;
@@ -27,6 +27,7 @@ Game::Game(GLFWwindow *window) : window(window) {
     am->loadSound("gun", "resources/sounds/gun.wav");
     am->loadSound("death_scream", "resources/sounds/death_scream.wav");
     am->loadSound("!", "resources/sounds/!.wav");
+    am->loadSound("nvg", "resources/sounds/nvg.wav");
 
     pathfinder = new Pathfinder();
 
@@ -39,7 +40,8 @@ Game::Game(GLFWwindow *window) : window(window) {
     );
     player = new Player(this, playerSpriteSheet, playerUVinfo);
 
-    setRoom("entrance");
+    menu = new Menu(this);
+    setRoom("outside");
 }
 
 Game::~Game() {
@@ -48,6 +50,7 @@ Game::~Game() {
     delete spriteDebugShader;
     delete tileDebugShader;
     delete pathfinder;
+    delete menu;
 
     for (auto [name, room] : rooms) {
         delete room;
@@ -82,7 +85,14 @@ void Game::start() {
 
         //TODO: GAME LOGIC
 
-        while (physTimeAccumulator >= FIXED_DT) {
+        if (isOnMenu) {
+            menu->processInput(window);
+        }
+        else {
+            processInput();
+        }
+
+        while (physTimeAccumulator >= FIXED_DT && !isOnMenu) {
             for (Guard *guard : (activeRoom->guards)) {
                 if (!guard->isActive) continue;
                 guard->process();
@@ -190,12 +200,19 @@ void Game::start() {
 
         //RENDERING
 
+        int renderMode = 0;
+        if (player->usingNVG) {
+            renderMode = (activeRoom->isDark) ? 1 : 3;
+        } else if (activeRoom->isDark) {
+            renderMode = 2;
+        }
+
         glClearColor(1.0f, 1.0, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         tileShader->use();
         glUniformMatrix4fv(glGetUniformLocation(tileShader->ID, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
-        tileShader->setInt("uRenderMode", 0);
+        tileShader->setInt("uRenderMode", renderMode);
         tileShader->setInt("uVirtualHeight", LOGIC_SCREEN_HEIGHT);
         tileShader->setInt("uRealHeight", SCREEN_HEIGHT);
 
@@ -203,7 +220,7 @@ void Game::start() {
 
         spriteShader->use();
         glUniformMatrix4fv(glGetUniformLocation(spriteShader->ID, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
-        spriteShader->setInt("uRenderMode", 0);
+        spriteShader->setInt("uRenderMode", renderMode);
         spriteShader->setInt("uVirtualHeight", LOGIC_SCREEN_HEIGHT);
         spriteShader->setInt("uRealHeight", SCREEN_HEIGHT);
 
@@ -219,6 +236,11 @@ void Game::start() {
 
         for (Bullet *b : activeRoom->bullets) {
             b->draw();
+        }
+
+        if (isOnMenu) {
+            spriteShader->setInt("uRenderMode", 0);
+            menu->draw();
         }
 
         glfwSwapBuffers(window);
@@ -341,6 +363,30 @@ void Game::setRoom(const std::string &name) {
     player->transform->position.y = activeRoom->playerStartPos.y * TILE_SIZE;
 }
 
+void Game::toggleMenu() {
+    isOnMenu = !isOnMenu;
+}
+
+void Game::processInput() {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        toggleMenu();
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+        if (!wasKeyPressed) {
+            setRoom("outside");
+            wasKeyPressed = true;
+        }
+    } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+        if (!wasKeyPressed) {
+            setRoom("entrance");
+            wasKeyPressed = true;
+
+        }
+    } else {
+        wasKeyPressed = false;
+    }
+}
 
 void Game::buildRooms() {
     rooms["outside"] = makeOutsideRoom(this);
@@ -373,7 +419,7 @@ Room* makeOutsideRoom(Game *game)  {
         map1[i] = solidMap1[i];
     }
     auto *tile = new TileMap(map1, "resources/textures/tiles/outside/", true);
-    auto *room = new Room({1, 2}, tile);
+    auto *room = new Room({1, 2}, tile, false);
 
     Prop *p = new Prop(game, TRUCK, "_outside");
     p->transform->position = {4 * TILE_SIZE, 2 * TILE_SIZE};
@@ -512,7 +558,7 @@ Room* makeEntranceRoom(Game *game) {
         map1[i] = solidMap1[i];
     }
     auto *tile = new TileMap(map1, "resources/textures/tiles/inside/", true);
-    auto *room = new Room({0, 9}, tile);
+    auto *room = new Room({0, 9}, tile, true);
 
     Prop *p = new Prop(game, BOX_SMALL, "");
     p->transform->position = {3 * TILE_SIZE, 1 * TILE_SIZE};

@@ -2,6 +2,7 @@
 #define INVISIBLE_GAME_H
 #include <vector>
 
+#include "Menu.h"
 #include "Pathfinder.h"
 #include "Shader.h"
 #include "dynamic/Player.h"
@@ -28,11 +29,14 @@ public:
     void start();
     void stop();
     void setRoom(const std::string& name);
+    void toggleMenu();
 private:
-    bool debug, isRunning;
+    bool debug, isRunning, isOnMenu, wasKeyPressed = false;
     Shader *tileShader, *tileDebugShader, *spriteShader, *spriteDebugShader;
+    Menu *menu;
 
     void buildRooms();
+    void processInput();
 };
 
 

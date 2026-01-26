@@ -103,6 +103,8 @@ add_executable(Invisible main.cpp
         AudioManager.h
         dynamic/Prop.cpp
         dynamic/Prop.h
+        Menu.cpp
+        Menu.h
 )
 
 #STB IMAGE

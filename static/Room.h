@@ -13,11 +13,10 @@ public:
     std::vector<Guard*> guards;
     std::vector<Prop*> props;
     std::vector<Bullet*> bullets;
+    bool isDark;
 
-    Room(Vec2 playerStartPos, TileMap *tileMap);
+    Room(Vec2 playerStartPos, TileMap *tileMap, bool isDark);
     ~Room();
-private:
-
 };
 
 

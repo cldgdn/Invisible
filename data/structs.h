@@ -24,12 +24,7 @@ struct Vec3 {
     float x, y, z;
 };
 
-struct Mesh {
-    float *vertices;
-    unsigned int *indices;
-    unsigned int vertexCount;
-    unsigned int indexCount;
-};
+
 
 struct UVinfo {
     Vec2 texCoord;

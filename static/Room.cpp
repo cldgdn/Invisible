@@ -1,6 +1,6 @@
 #include "Room.h"
 
-Room::Room(Vec2 playerStartPos, TileMap *tileMap) : playerStartPos(playerStartPos), tileMap(tileMap) {
+Room::Room(Vec2 playerStartPos, TileMap *tileMap, bool isDark) : playerStartPos(playerStartPos), tileMap(tileMap), isDark(isDark) {
 }
 
 Room::~Room() {

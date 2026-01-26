@@ -67,6 +67,18 @@ void Player::processInput(GLFWwindow *window) {
     //ACTIONS
     usingBox = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
 
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS ) {
+        if (!wasNVGKeyPressed) {
+            wasNVGKeyPressed = true;
+            usingNVG = !usingNVG;
+            if (usingNVG)
+                AudioManager::getInstance().playSound("nvg", 1.0, false);
+        }
+    }
+    else {
+        wasNVGKeyPressed = false;
+    }
+
     bool punchPressed = glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS;
     bool punchJustPressed = !wasPunchPressed && punchPressed;
     wasPunchPressed = punchPressed;
