@@ -105,6 +105,8 @@ add_executable(Invisible main.cpp
         dynamic/Prop.h
         Menu.cpp
         Menu.h
+        dynamic/RoomExit.cpp
+        dynamic/RoomExit.h
 )
 
 #STB IMAGE

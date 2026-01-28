@@ -34,7 +34,7 @@ Player::Player(Game *game, Texture *fallbackTexture, UVinfo *fallbackUVinfo) : S
         transform, {-2, (-1.0f * TILE_SIZE) - 2},
         TILE_SIZE + 4, TILE_SIZE + 4,
         0,
-        CLAYER_ENEMY,
+        CLAYER_ENEMY | CLAYER_INTERACTION,
         ColliderType::TRIGGER, false
     );
     punchBox->isActive = false;

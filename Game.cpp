@@ -4,6 +4,7 @@
 
 #include "AudioManager.h"
 #include "Pathfinder.h"
+#include "dynamic/RoomExit.h"
 #include "GLFW/glfw3.h"
 #include "glm/gtc/type_ptr.hpp"
 
@@ -132,6 +133,13 @@ void Game::start() {
                             guard->die();
                     }
                 }
+
+                if (activeRoom->exit != nullptr) {
+                    Collider *e = activeRoom->exit->colliders["exit"];
+                    if (AABB(c, e) != NO_COLLISION) {
+                        setRoom(activeRoom->exit->roomName);
+                    }
+                }
             }
 
             if (player->transform->translatePending) {
@@ -140,6 +148,11 @@ void Game::start() {
                     for (Collider *t : activeRoom->tileMap->colliders) {
                         AABB(c, t);
                     }
+                }
+
+                if (activeRoom->exit != nullptr) {
+                    Collider *e = activeRoom->exit->colliders["solid"];
+                    AABB(c, e);
                 }
 
                 if (player->transform->translatePending) {
@@ -227,6 +240,9 @@ void Game::start() {
         for (Prop *prop : activeRoom->props) {
             prop->draw();
         }
+
+        if (activeRoom->exit != nullptr)
+            activeRoom->exit->draw();
 
         for (Guard *guard : activeRoom->guards) {
             guard->draw();
@@ -420,6 +436,9 @@ Room* makeOutsideRoom(Game *game)  {
     }
     auto *tile = new TileMap(map1, "resources/textures/tiles/outside/", true);
     auto *room = new Room({1, 2}, tile, false);
+
+    room->exit = new RoomExit(game, "entrance", VERTICAL);
+    room->exit->transform->position = {31 * TILE_SIZE, 8 * TILE_SIZE};
 
     Prop *p = new Prop(game, TRUCK, "_outside");
     p->transform->position = {4 * TILE_SIZE, 2 * TILE_SIZE};

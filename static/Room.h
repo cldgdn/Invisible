@@ -5,6 +5,7 @@
 #include "../dynamic/Guard.h"
 #include "../dynamic/Prop.h"
 
+class RoomExit;
 
 class Room {
 public:
@@ -14,6 +15,7 @@ public:
     std::vector<Prop*> props;
     std::vector<Bullet*> bullets;
     bool isDark;
+    RoomExit *exit;
 
     Room(Vec2 playerStartPos, TileMap *tileMap, bool isDark);
     ~Room();

@@ -1,10 +1,12 @@
 #include "Room.h"
+#include "../dynamic/RoomExit.h"
 
-Room::Room(Vec2 playerStartPos, TileMap *tileMap, bool isDark) : playerStartPos(playerStartPos), tileMap(tileMap), isDark(isDark) {
+Room::Room(Vec2 playerStartPos, TileMap *tileMap, bool isDark) : playerStartPos(playerStartPos), tileMap(tileMap), isDark(isDark), exit(nullptr) {
 }
 
 Room::~Room() {
     delete tileMap;
+    delete exit;
     for (Guard *g : guards) {
         delete g;
     }
