@@ -14,6 +14,7 @@ namespace MENU {
 class Menu {
 public:
     Game *game;
+    bool winScreen = false;
 
     Menu(Game *game);
     ~Menu();

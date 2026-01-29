@@ -76,7 +76,13 @@ Menu::~Menu() {
 void Menu::processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         if (onStartGame) {
-            game->toggleMenu();
+            if (winScreen) {
+                game->stop();
+                game->start();
+            }
+            else {
+                game->toggleMenu();
+            }
         }
         else {
             game->stop();

@@ -67,6 +67,7 @@ void Game::start() {
     long totframes = 0;
     isRunning = true;
     isOnMenu = true;
+    menu->winScreen = false;
     player->isDead = false;
     player->playAnimation("idle_down", 0);
 
@@ -217,6 +218,9 @@ void Game::start() {
 
         //RENDERING
 
+        //if something in logic decided to stop the game (exit from pause), rooms may have been deleted, causing segfault
+        if (!isRunning) break;
+
         int renderMode = 0;
         if (player->usingNVG) {
             renderMode = (activeRoom->isDark) ? 1 : 3;
@@ -290,6 +294,7 @@ void Game::start() {
  */
 void Game::stop() {
     isRunning = false;
+    if (player->usingNVG) player->usingNVG = false;
     for (auto [name, room] : rooms) {
         delete room;
         rooms[name] = nullptr;
@@ -382,6 +387,12 @@ CollisionType AABB(Collider *a, Collider *b) {
 }
 
 void Game::setRoom(const std::string &name) {
+    if (name == "win") {
+        isOnMenu = true;
+        menu->winScreen = true;
+        if (player->usingNVG) player->usingNVG = false;
+    }
+
     activeRoom = rooms[name];
     player->transform->position.x = activeRoom->playerStartPos.x * TILE_SIZE;
     player->transform->position.y = activeRoom->playerStartPos.y * TILE_SIZE;
@@ -407,6 +418,16 @@ void Game::processInput() {
             wasKeyPressed = true;
 
         }
+    } else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+        if (!wasKeyPressed) {
+            setRoom("storage");
+            wasKeyPressed = true;
+        }
+    } else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+        if (!wasKeyPressed) {
+            setRoom("win");
+            wasKeyPressed = true;
+        }
     } else {
         wasKeyPressed = false;
     }
@@ -415,6 +436,8 @@ void Game::processInput() {
 void Game::buildRooms() {
     rooms["outside"] = makeOutsideRoom(this);
     rooms["entrance"] = makeEntranceRoom(this);
+    rooms["storage"] = makeStorageRoom(this);
+    rooms["win"] = makeWinRoom(this);
 }
 
 Room* makeOutsideRoom(Game *game)  {
@@ -585,7 +608,10 @@ Room* makeEntranceRoom(Game *game) {
         map1[i] = solidMap1[i];
     }
     auto *tile = new TileMap(map1, "resources/textures/tiles/inside/", true);
-    auto *room = new Room({0, 9}, tile, true);
+    auto *room = new Room({0, 9}, tile, false);
+
+    room->exit = new RoomExit(game, "storage", VERTICAL);
+    room->exit->transform->position = {31 * TILE_SIZE, 8 * TILE_SIZE};
 
     Prop *p = new Prop(game, BOX_SMALL, "");
     p->transform->position = {3 * TILE_SIZE, 1 * TILE_SIZE};
@@ -735,6 +761,323 @@ Room* makeEntranceRoom(Game *game) {
     g->transform->position = {18 * TILE_SIZE, 10 * TILE_SIZE};
     g->loopPath = false;
     room->guards.push_back(g);
+
+    return room;
+}
+
+Room* makeStorageRoom(Game *game) {
+    bool solidMap1[ROOM_HEIGHT][ROOM_WIDTH] = {
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1},
+        {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+        {1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+        {1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1},
+        {1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1},
+        {1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1},
+        {1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1},
+        {1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1},
+        {1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+    };
+    bool *map1[ROOM_HEIGHT];
+    for (int i = 0; i < ROOM_HEIGHT; i++) {
+        map1[i] = solidMap1[i];
+    }
+    auto *tile = new TileMap(map1, "resources/textures/tiles/inside/", true);
+    auto *room = new Room({0, 9}, tile, true);
+
+    room->exit = new RoomExit(game, "win", HORIZONTAL);
+    room->exit->transform->position = {28 * TILE_SIZE, 0};
+
+    Prop *p = new Prop(game, BOX);
+    p->transform->position = {2 * TILE_SIZE, 6 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {4 * TILE_SIZE, 10 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {3 * TILE_SIZE, 14 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {11 * TILE_SIZE, 2 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {11 * TILE_SIZE, 4 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {12 * TILE_SIZE, 12 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {10 * TILE_SIZE, 15 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {19 * TILE_SIZE, 1 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {21 * TILE_SIZE, 6 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {20 * TILE_SIZE, 12 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {20 * TILE_SIZE, 14 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {22 * TILE_SIZE, 1 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {25 * TILE_SIZE, 1 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {25 * TILE_SIZE, 3 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {26 * TILE_SIZE, 7 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {27 * TILE_SIZE, 13 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX);
+    p->transform->position = {29 * TILE_SIZE, 6 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {1 * TILE_SIZE, 3 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {3 * TILE_SIZE, 10 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {4 * TILE_SIZE, 2 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {5 * TILE_SIZE, 3 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {5 * TILE_SIZE, 13 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {11 * TILE_SIZE, 13 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {12 * TILE_SIZE, 14 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {13 * TILE_SIZE, 5 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {13 * TILE_SIZE, 15 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {19 * TILE_SIZE, 6 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {19 * TILE_SIZE, 11 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {19 * TILE_SIZE, 13 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {21 * TILE_SIZE, 4 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {22 * TILE_SIZE, 13 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {23 * TILE_SIZE, 3 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {24 * TILE_SIZE, 2 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {27 * TILE_SIZE, 2 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {27 * TILE_SIZE, 5 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {29 * TILE_SIZE, 12 * TILE_SIZE};
+    room->props.push_back(p);
+
+    p = new Prop(game, BOX_SMALL);
+    p->transform->position = {29 * TILE_SIZE, 14 * TILE_SIZE};
+    room->props.push_back(p);
+
+    Guard *g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{2 * TILE_SIZE, 8 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{13 * TILE_SIZE, 8 * TILE_SIZE});
+    g->transform->position = {2 * TILE_SIZE, 8 * TILE_SIZE};
+    room->guards.push_back(g);
+
+    g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{2 * TILE_SIZE, 9 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{13 * TILE_SIZE, 9 * TILE_SIZE});
+    g->transform->position = {2 * TILE_SIZE, 9 * TILE_SIZE};
+    room->guards.push_back(g);
+
+    g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{25 * TILE_SIZE, 8 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{14 * TILE_SIZE, 8 * TILE_SIZE});
+    g->transform->position = {25 * TILE_SIZE, 8 * TILE_SIZE};
+    room->guards.push_back(g);
+
+    g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{25 * TILE_SIZE, 9 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{14 * TILE_SIZE, 9 * TILE_SIZE});
+    g->transform->position = {25 * TILE_SIZE, 9 * TILE_SIZE};
+    room->guards.push_back(g);
+
+    g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{6 * TILE_SIZE, 6 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{6 * TILE_SIZE, 2 * TILE_SIZE});
+    g->transform->position = {6 * TILE_SIZE, 6 * TILE_SIZE};
+    room->guards.push_back(g);
+
+    g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{6 * TILE_SIZE, 12 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{2 * TILE_SIZE, 12 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{2 * TILE_SIZE, 16 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{6 * TILE_SIZE, 16 * TILE_SIZE});
+    g->transform->position = {6 * TILE_SIZE, 12 * TILE_SIZE};
+    g->loopPath = true;
+    room->guards.push_back(g);
+
+    g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{14 * TILE_SIZE, 1 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{14 * TILE_SIZE, 11 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{10 * TILE_SIZE, 11 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{10 * TILE_SIZE, 1 * TILE_SIZE});
+    g->transform->position = {14 * TILE_SIZE, 1 * TILE_SIZE};
+    g->loopPath = true;
+    room->guards.push_back(g);
+
+    g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{15 * TILE_SIZE, 2 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{17 * TILE_SIZE, 2 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{17 * TILE_SIZE, 7 * TILE_SIZE});
+    g->transform->position = {15 * TILE_SIZE, 2 * TILE_SIZE};
+    room->guards.push_back(g);
+
+    g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{15 * TILE_SIZE, 11 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{15 * TILE_SIZE, 14 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{18 * TILE_SIZE, 14 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{18 * TILE_SIZE, 10 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{22 * TILE_SIZE, 10 * TILE_SIZE});
+    g->transform->position = {15 * TILE_SIZE, 11 * TILE_SIZE};
+    room->guards.push_back(g);
+
+    g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{22 * TILE_SIZE, 16 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{19 * TILE_SIZE, 16 * TILE_SIZE});
+    g->transform->position = {22 * TILE_SIZE, 16 * TILE_SIZE};
+    room->guards.push_back(g);
+
+    g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{23 * TILE_SIZE, 7 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{23 * TILE_SIZE, 5 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{22 * TILE_SIZE, 5 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{22 * TILE_SIZE, 3 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{19 * TILE_SIZE, 3 * TILE_SIZE});
+    g->transform->position = {23 * TILE_SIZE, 7 * TILE_SIZE};
+    room->guards.push_back(g);
+
+    g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{25 * TILE_SIZE, 10 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{25 * TILE_SIZE, 7 * TILE_SIZE});
+    g->transform->position = {25 * TILE_SIZE, 10 * TILE_SIZE};
+    room->guards.push_back(g);
+
+    g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{26 * TILE_SIZE, 11 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{26 * TILE_SIZE, 16 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{30 * TILE_SIZE, 16 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{30 * TILE_SIZE, 11 * TILE_SIZE});
+    g->transform->position = {26 * TILE_SIZE, 11 * TILE_SIZE};
+    g->loopPath = true;
+    room->guards.push_back(g);
+
+    g = new Guard(game);
+    g->patrolPath->push_back(new Vec2{28 * TILE_SIZE, 1 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{28 * TILE_SIZE, 5 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{29 * TILE_SIZE, 5 * TILE_SIZE});
+    g->patrolPath->push_back(new Vec2{29 * TILE_SIZE, 1 * TILE_SIZE});
+    g->transform->position = {28 * TILE_SIZE, 1 * TILE_SIZE};
+    g->loopPath = true;
+    room->guards.push_back(g);
+
+    return room;
+}
+
+Room* makeWinRoom(Game *game) {
+    bool solidMap1[ROOM_HEIGHT][ROOM_WIDTH] = {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
+    bool *map1[ROOM_HEIGHT];
+    for (int i = 0; i < ROOM_HEIGHT; i++) {
+        map1[i] = solidMap1[i];
+    }
+    auto *tile = new TileMap(map1, "resources/textures/tiles/outside/", true);
+    auto *room = new Room({0, 9}, tile, false);
+
+    room->playerStartPos = {SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f};
 
     return room;
 }

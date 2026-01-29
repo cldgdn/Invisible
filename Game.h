@@ -13,6 +13,8 @@
 CollisionType AABB(Collider *a, Collider *b);
 Room* makeOutsideRoom(Game *game);
 Room* makeEntranceRoom(Game *game);
+Room* makeStorageRoom(Game *game);
+Room* makeWinRoom(Game *game);
 
 
 class Game {
