@@ -32,8 +32,6 @@ Game::Game(GLFWwindow *window) : window(window), isOnMenu(true) {
 
     pathfinder = new Pathfinder();
 
-    buildRooms();
-
     Texture *playerSpriteSheet = new Texture("resources/textures/sprites/player.png", 160, 64, Texture::TileMode::STRETCH, nullptr);
     UVinfo *playerUVinfo = new UVinfo(
         {0.0f, 0.0f},
@@ -42,7 +40,6 @@ Game::Game(GLFWwindow *window) : window(window), isOnMenu(true) {
     player = new Player(this, playerSpriteSheet, playerUVinfo);
 
     menu = new Menu(this);
-    setRoom("outside");
 }
 
 Game::~Game() {
@@ -54,7 +51,8 @@ Game::~Game() {
     delete menu;
 
     for (auto [name, room] : rooms) {
-        delete room;
+        if (room != nullptr)
+            delete room;
     }
     delete player;
 }
@@ -68,6 +66,12 @@ void Game::start() {
     int frames = 0;
     long totframes = 0;
     isRunning = true;
+    isOnMenu = true;
+    player->isDead = false;
+    player->playAnimation("idle_down", 0);
+
+    buildRooms();
+    setRoom("outside");
 
     //GAME LOOP
     while (isRunning) {
@@ -286,6 +290,10 @@ void Game::start() {
  */
 void Game::stop() {
     isRunning = false;
+    for (auto [name, room] : rooms) {
+        delete room;
+        rooms[name] = nullptr;
+    }
 }
 
 /*

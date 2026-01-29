@@ -343,6 +343,7 @@ void Player::addAllAnimations() {
         frameLocations, 4, 16, 32, 1.14f, false);
     animation->callback = [this]() {
         this->game->stop();
+        this->game->start();
     };
     addAnimation("death", animation);
 }
