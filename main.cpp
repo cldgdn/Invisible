@@ -7,17 +7,11 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <sstream>
-
-#include "Shader.h"
-#include "Shape.h"
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "Game.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "static/Texture.h"
-#include "static/TileMap.h"
 #include "globals.h"
 #include "dynamic/Sprite.h"
 

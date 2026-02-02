@@ -1,9 +1,4 @@
-//
-// Created by clode on 21/01/2026.
-//
-
 #include "Prop.h"
-#include "../globals.h"
 
 Prop::Prop(Game *game, PropType type, const std::string& postfix) : Sprite(game, nullptr, nullptr) {
     switch (type) {

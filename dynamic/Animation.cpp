@@ -3,11 +3,13 @@
 #include "../globals.h"
 #include "GLFW/glfw3.h"
 
-Animation::Animation(const std::string& atlas, float width, float height, Vec2 *offset, Vec2 *frameLocations, int frameCount, int frameWidth, int frameHeight, int FPS, bool loop) :
+Animation::Animation(const std::string& atlas, float width, float height, Vec2 *offset, Vec2 *frameLocations, int frameCount, int frameWidth, int frameHeight, float FPS, bool loop) :
     atlas(atlas), width(width), height(height), offset(offset), frameLocations(frameLocations), frameCount(frameCount), frameWidth(frameWidth), frameHeight(frameHeight), FPS(FPS), loop(loop)
 {
     timer = 0;
     frameProgress = 0;
+    currentFrame = 0;
+    playing = false;
     texture = new Texture(atlas, width, height, Texture::STRETCH, nullptr);
     callback = nullptr;
 }

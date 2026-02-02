@@ -69,8 +69,6 @@ FetchContent_MakeAvailable(glm)
 add_executable(Invisible main.cpp
         dynamic/Transform.cpp
         dynamic/Transform.h
-        Shape.cpp
-        Shape.h
         Shader.cpp
         Shader.h
         dynamic/Collider.cpp

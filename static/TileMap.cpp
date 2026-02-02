@@ -8,8 +8,6 @@
 #include <ranges>
 
 #include "../Shader.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "../globals.h"
 #include "glm/gtc/type_ptr.hpp"
@@ -160,7 +158,7 @@ void TileMap::greedyMeshTiles() {
         }
     }
 
-    //create colliders to wall in the entire map
+    //create colliders to wall-in the entire map
 
     Collider *topWall = new Collider(
         nullptr,

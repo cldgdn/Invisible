@@ -1,7 +1,3 @@
-//
-// Created by clode on 07/11/2025.
-//
-
 #include "Collider.h"
 
 Collider::Collider(Transform *transform, Vec2 offset, float width, float height, unsigned int layersOn, unsigned int layersCollided, ColliderType type, bool isStatic) :

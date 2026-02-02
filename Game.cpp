@@ -15,8 +15,8 @@ static glm::mat4 projection = glm::ortho(
 );
 
 /*
- * When creating a new Game instance, all shaders, rooms, sprites, tilemaps and everything else is created.
- * This is where objects are hard coded into the game.
+ * When creating a new Game instance, everything that is consistent across the entire game is loaded.
+ * This means: shaders are compiled, audio is loaded and the Player and Menu are created.
  */
 Game::Game(GLFWwindow *window) : window(window), isOnMenu(true) {
     spriteShader = new Shader("shaders/vertex/spriteVertex.vert", "shaders/fragment/visorSupport.frag");
@@ -218,7 +218,7 @@ void Game::start() {
 
         //RENDERING
 
-        //if something in logic decided to stop the game (exit from pause), rooms may have been deleted, causing segfault
+        //if something in logic decided to stop the game (exit from pause), rooms may have been deleted, causing segfault if attempted to draw
         if (!isRunning) break;
 
         int renderMode = 0;
@@ -302,7 +302,7 @@ void Game::stop() {
 }
 
 /*
- * checks if a collides with b and what kind of collision it is. For solid collisions, it assumes that a is the collider moving INTO the solid object.
+ * checks if a collides with b and what kind of collision it is. For solid collisions, it assumes that a is the collider moving INTO the solid object b.
  * This assumption is viable since moving solid objects will only be checking against walls and other static objects by design.
  */
 CollisionType AABB(Collider *a, Collider *b) {

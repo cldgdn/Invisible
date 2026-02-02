@@ -8,7 +8,7 @@ Can YOU become INVISIBLE?
 
 ---Game mechanics---
 Each guard has their own patrol route that they will follow without pause until
-they spot the player, when they become aggressive and start chasing them as well
+they spot the player, then they become aggressive and start chasing them as well
 as shooting their gun. The guards are quite hard of hearing and have very poor
 eyesight: they do not react to sound, and can only see directly ahead of where
 they're going. This also means that, whenever one of them is alerted, the others
@@ -41,7 +41,7 @@ all useful toward their goal of staying unnoticed:
    in the box. [...] And then, when I put it on, I suddenly got this feeling of inner
    peace. I can't put it into words. I feel... safe. Like this is where I was meant to
    be. Like I'd found the key to true happiness."
-      -Jack/John, alias Big Boss, Russian Jungle, 1964.
+      -Jack/John, alias Big Boss, Russian Jungle, Operation Snake Eater - 1964.
          (Kojima Productions, MGS3, 17/11/2004)
 
 ---Controls and Keybinds---
@@ -71,6 +71,7 @@ Video games are art.
 Therefore I consider INVISIBLE and everything attached to it (this file included) to be a piece of art.
 As such, there will be no compromises made on the inclusion of the resources/loadbearing folder memes,
 as well as the generally unserious tone of the writing of this file.
+(The load bearing images are required for the game to launch)
 This may be a bad and derivative piece of art, but it will stay my own nonetheless.
 -Claudio Gaudino
 

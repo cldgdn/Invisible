@@ -32,6 +32,7 @@ std::vector<Vec2 *>* Pathfinder::findPath(Room *room, Vec2 *start, Vec2 *dest) {
     starty = ((tstarty - std::floor(tstarty)) >= 0.5f) ? (int) std::floor(tstarty) + 1 : (int) std::floor(tstarty);
 
     if (room == nullptr) {
+        delete path;
         return nullptr;
     }
 
@@ -107,6 +108,7 @@ std::vector<Vec2 *>* Pathfinder::findPath(Room *room, Vec2 *start, Vec2 *dest) {
         return path;
     }
 
+    delete path;
     return nullptr;
 }
 
