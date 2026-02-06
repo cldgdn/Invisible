@@ -11,6 +11,7 @@ namespace GUARD {
     constexpr double MARK_DISPLAY_TIMER = 1.0f;
     constexpr double FIRE_COOLDOWN = 0.8f;
     constexpr double NEW_PATH_COOLDOWN = 1.5f;
+    constexpr double ALERT_SPREAD_DISTANCE = 3 * TILE_SIZE;
     constexpr Vec2 BULLET_OFFSET_DOWN = Vec2(5, -3);
     constexpr Vec2 BULLET_OFFSET_UP = Vec2(5, -1.0 *TILE_SIZE);
     constexpr Vec2 BULLET_OFFSET_RIGHT = Vec2(TILE_SIZE, -2);
@@ -27,6 +28,7 @@ public:
     bool isAlive, isAlerted, reversePath, loopPath;
     double isPathNeeded;
 
+    //TODO: give vision feedback
     Guard(Game *game);
     ~Guard();
 
@@ -38,6 +40,7 @@ public:
     void takeDamage(int dmg);
     void die();
     void fire();
+    void alert(bool playSound);
 
 private:
     double displayMark = 0, fireTimer = 0;

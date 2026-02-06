@@ -65,6 +65,7 @@ void Game::start() {
     double elapsedTime = 0, frameStartTime, frameEndTime, totFrameTime = 0, physTimeAccumulator = 0;
     int frames = 0;
     long totframes = 0;
+    std::vector<Guard*> delayedGuards;
     isRunning = true;
     isOnMenu = true;
     menu->winScreen = false;
@@ -252,11 +253,20 @@ void Game::start() {
         if (activeRoom->exit != nullptr)
             activeRoom->exit->draw();
 
+        //guards that are lower on the screen should be drawn in front of the player
         for (Guard *guard : activeRoom->guards) {
-            guard->draw();
+            if (guard->transform->position.y < player->transform->position.y)
+                guard->draw();
+            else
+                delayedGuards.push_back(guard);
         }
 
         player->draw();
+
+        for (Guard *guard : delayedGuards) {
+            guard->draw();
+        }
+        delayedGuards.clear();
 
         for (Bullet *b : activeRoom->bullets) {
             b->draw();
@@ -1075,7 +1085,7 @@ Room* makeWinRoom(Game *game) {
         map1[i] = solidMap1[i];
     }
     auto *tile = new TileMap(map1, "resources/textures/tiles/outside/", true);
-    auto *room = new Room({0, 9}, tile, false);
+    auto *room = new Room({0, 9 * TILE_SIZE}, tile, false);
 
     room->playerStartPos = {SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f};
 

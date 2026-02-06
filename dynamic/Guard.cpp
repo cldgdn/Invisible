@@ -162,6 +162,17 @@ void Guard::process() {
             fire();
             fireTimer = FIRE_COOLDOWN;
         }
+
+        //spread alert status to nearby guards
+        std::vector<Guard*>* others = &game->activeRoom->guards;
+        for (Guard *g : *others) {
+            if (g == this || g->isAlerted)
+                continue;
+            float distance = sqrt(pow(g->transform->position.x - transform->position.x, 2) + pow(g->transform->position.x - transform->position.x, 2));
+            if (distance <= GUARD::ALERT_SPREAD_DISTANCE) {
+                g->alert(false);
+            }
+        }
     }
     else if (!player->usingBox && !player->isDead) {
         Vec2 origin = transform->position + RAYCAST_OFFSET;
@@ -175,12 +186,7 @@ void Guard::process() {
             RaycastHit tileHit = raycast(&origin, &heading, VIEW_DISTANCE, CLAYER_TILES, &activeRoom->tileMap->colliders);
 
             if (!tileHit.hit || playerHit.distance < tileHit.distance) {
-                AudioManager::getInstance().playSound("!", 0.7f, false);
-                isAlerted = true;
-                displayMark = MARK_DISPLAY_TIMER;
-                fireTimer = FIRE_COOLDOWN / 2;
-                isPathNeeded = 0.0f;
-                std::cout << "PLAYER SPOTTED!!" << std::endl;
+                alert(true);
             }
         }
     }
@@ -249,6 +255,17 @@ void Guard::process() {
 
     moveTowardDest();
 }
+
+void Guard::alert(bool playSound) {
+    if (playSound)
+        AudioManager::getInstance().playSound("!", 0.7f, false);
+    isAlerted = true;
+    displayMark = MARK_DISPLAY_TIMER;
+    fireTimer = FIRE_COOLDOWN / 2;
+    isPathNeeded = 0.0f;
+    std::cout << "PLAYER SPOTTED!!" << std::endl;
+}
+
 
 Vec2 Guard::getHeadingVersor() {
     if (currentPath == nullptr || currDest >= currentPath->size()) {
