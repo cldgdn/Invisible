@@ -16,6 +16,11 @@ bool AudioManager::loadSound(const std::string &name, const std::string &path) {
 }
 
 unsigned int AudioManager::playSound(const std::string &name, float volume, bool loop) {
+    auto handle = handles.find(name);
+    if (handle != handles.end()) {
+        stopSound(name);
+    }
+
     auto it = sounds.find(name);
     if (it != sounds.end()) {
         unsigned int handle = soloud.play(*it->second, volume);

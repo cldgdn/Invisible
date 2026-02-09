@@ -105,6 +105,13 @@ add_executable(Invisible main.cpp
         Menu.h
         dynamic/RoomExit.cpp
         dynamic/RoomExit.h
+        text/Glyph.h
+        text/Font.cpp
+        text/Font.h
+        text/TextObject.cpp
+        text/TextObject.h
+        text/TextManager.cpp
+        text/TextManager.h
 )
 
 #STB IMAGE
@@ -112,7 +119,12 @@ target_include_directories(Invisible PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image
 )
 
-target_link_libraries(Invisible PRIVATE glfw glad glm soloud)
+#FreeType
+add_subdirectory(external/freetype-2.14.1)
+
+target_include_directories(Invisible PRIVATE external/freetype-2.14.1/include)
+
+target_link_libraries(Invisible PRIVATE glfw glad glm soloud freetype)
 
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE opengl32)

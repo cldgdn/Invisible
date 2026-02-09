@@ -34,7 +34,7 @@ public:
     void toggleMenu();
 private:
     bool debug, isRunning, isOnMenu, wasKeyPressed = false;
-    Shader *tileShader, *tileDebugShader, *spriteShader, *spriteDebugShader;
+    Shader *tileShader, *spriteShader, *textShader;
     Menu *menu;
 
     void buildRooms();

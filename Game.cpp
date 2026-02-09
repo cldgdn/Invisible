@@ -7,6 +7,7 @@
 #include "dynamic/RoomExit.h"
 #include "GLFW/glfw3.h"
 #include "glm/gtc/type_ptr.hpp"
+#include "text/TextManager.h"
 
 static glm::mat4 projection = glm::ortho(
     0.0f, (float) LOGIC_SCREEN_WIDTH,
@@ -21,14 +22,16 @@ static glm::mat4 projection = glm::ortho(
 Game::Game(GLFWwindow *window) : window(window), isOnMenu(true) {
     spriteShader = new Shader("shaders/vertex/spriteVertex.vert", "shaders/fragment/visorSupport.frag");
     tileShader = new Shader("shaders/vertex/tilesVertex.vert", "shaders/fragment/visorSupport.frag");
-    spriteDebugShader = nullptr;
-    tileDebugShader = nullptr;
+    textShader = new Shader("shaders/vertex/text.vert", "shaders/fragment/text.frag");
 
     AudioManager* am = &AudioManager::getInstance();
     am->loadSound("gun", "resources/sounds/gun.wav");
     am->loadSound("death_scream", "resources/sounds/death_scream.wav");
     am->loadSound("!", "resources/sounds/!.wav");
     am->loadSound("nvg", "resources/sounds/nvg.wav");
+
+    TextManager* tm = &TextManager::getInstance();
+    tm->loadFont("resources/fonts/Speedtest-2O7nK.ttf", "Speedtest", 32);
 
     pathfinder = new Pathfinder();
 
@@ -45,8 +48,7 @@ Game::Game(GLFWwindow *window) : window(window), isOnMenu(true) {
 Game::~Game() {
     delete spriteShader;
     delete tileShader;
-    delete spriteDebugShader;
-    delete tileDebugShader;
+    delete textShader;
     delete pathfinder;
     delete menu;
 
@@ -74,6 +76,9 @@ void Game::start() {
 
     buildRooms();
     setRoom("outside");
+
+    std::unique_ptr<TextObject> test = TextManager::getInstance().createText("Speedtest", 32, "invisible");
+    test->position = {0, 0};
 
     //GAME LOOP
     while (isRunning) {
@@ -276,6 +281,12 @@ void Game::start() {
             spriteShader->setInt("uRenderMode", 0);
             menu->draw();
         }
+
+        textShader->use();
+        glUniformMatrix4fv(glGetUniformLocation(textShader->ID, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniform4f(glGetUniformLocation(textShader->ID, "uTextColor"), 1.0f, 0.0f, 0.0f, 0.5f);
+        textShader->setInt("uText", 0);
+        test->draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
