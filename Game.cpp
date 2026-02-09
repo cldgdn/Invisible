@@ -31,7 +31,8 @@ Game::Game(GLFWwindow *window) : window(window), isOnMenu(true) {
     am->loadSound("nvg", "resources/sounds/nvg.wav");
 
     TextManager* tm = &TextManager::getInstance();
-    tm->loadFont("resources/fonts/Speedtest-2O7nK.ttf", "Speedtest", 32);
+    tm->loadFont("resources/fonts/Speedtest-2O7nK.ttf", "Speedtest", 64);
+    tm->loadFont("resources/fonts/Helvetica Ultra Compressed.otf", "Helvetica", 128);
 
     pathfinder = new Pathfinder();
 
@@ -76,9 +77,6 @@ void Game::start() {
 
     buildRooms();
     setRoom("outside");
-
-    std::unique_ptr<TextObject> test = TextManager::getInstance().createText("Speedtest", 32, "invisible");
-    test->position = {0, 0};
 
     //GAME LOOP
     while (isRunning) {
@@ -278,15 +276,12 @@ void Game::start() {
         }
 
         if (isOnMenu) {
+            textShader->use();
+            glUniformMatrix4fv(glGetUniformLocation(textShader->ID, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
+            textShader->setInt("uText", 0);
             spriteShader->setInt("uRenderMode", 0);
             menu->draw();
         }
-
-        textShader->use();
-        glUniformMatrix4fv(glGetUniformLocation(textShader->ID, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniform4f(glGetUniformLocation(textShader->ID, "uTextColor"), 1.0f, 0.0f, 0.0f, 0.5f);
-        textShader->setInt("uText", 0);
-        test->draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

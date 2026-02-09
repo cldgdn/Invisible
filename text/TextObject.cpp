@@ -45,17 +45,58 @@ const std::string & TextObject::getText() const {
     return this->text;
 }
 
+float TextObject::getWidth() {
+    if (width < 0) {
+        width = 0;
+        float x = 0;
+
+        const Glyph &first = font->getGlyph(text[0]);
+        float left = first.bearingX;
+
+        for (char c : this->text) {
+            const Glyph &glyph = font->getGlyph(c);
+            x += (glyph.advance >> 6);
+        }
+
+        const Glyph &last = font->getGlyph(text.back());
+        float right = x - (last.advance >> 6) + last.bearingX + last.width;
+        width = std::ceil(right - left);
+    }
+
+    return width;
+}
+
+float TextObject::getHeight() {
+    if (height < 0) {
+        height = 0;
+
+        for (char c : this->text) {
+            const Glyph &glyph = font->getGlyph(c);
+            if (height < glyph.height) {
+                height = glyph.height;
+            }
+        }
+    }
+
+    return height;
+}
+
 void TextObject::draw() {
     float cursor = position.x;
+
+    GLint programID;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &programID);
+
+    glUniform4f(glGetUniformLocation(programID, "uTextColor"), color.r, color.g, color.b, color.a);
 
     for (char c : text) {
         const Glyph& glyph = font->getGlyph(c);
         glBindVertexArray(glyph.VAO);
 
-        GLint programID;
-        glGetIntegerv(GL_CURRENT_PROGRAM, &programID);
 
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(cursor, position.y, 0.0f));
+
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(cursor + glyph.bearingX * scale, position.y, 0.0f));
+        model = glm::scale(model, glm::vec3(scale, scale, 1.0f));
 
         GLint modelLoc = glGetUniformLocation(programID, "uModel");
 
@@ -71,7 +112,7 @@ void TextObject::draw() {
 
         glBindVertexArray(0);
 
-        cursor += glyph.advance >> 6;
+        cursor += (glyph.advance >> 6) * scale;
     }
 
 

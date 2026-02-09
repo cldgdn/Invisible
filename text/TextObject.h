@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "../data/structs.h"
+#include "glm/vec4.hpp"
 
 
 class Font;
@@ -14,6 +15,8 @@ class Font;
 class TextObject {
 public:
     Vec2 position = {0.0f, 0.0f};
+    float scale = 1.0f;
+    glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
     TextObject(std::shared_ptr<Font> font, const std::string& text);
     ~TextObject();
@@ -24,6 +27,9 @@ public:
     void setText(const std::string& text);
     const std::string& getText() const;
 
+    float getWidth();
+    float getHeight();
+
     void draw();
 private:
     std::shared_ptr<Font> font;
@@ -31,6 +37,8 @@ private:
 
     unsigned int VAO, VBO;
     unsigned int vertexCount;
+
+    float width = -1, height = -1;
 
     void rebuildMesh();
 };

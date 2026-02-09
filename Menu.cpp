@@ -5,119 +5,107 @@
 #include "Menu.h"
 
 #include "Game.h"
+#include "text/TextManager.h"
 
 using namespace MENU;
 
 Menu::Menu(Game *game) : game(game) {
-    Texture *t = new Texture(
-        "resources/textures/logo.png",
-        345, 42,
-        Texture::STRETCH,
-        nullptr
-    );
-    logo = new Sprite(game, t, nullptr);
-    logo->transform->position = {
-        (LOGIC_SCREEN_WIDTH - 345) / 2.0f,
-        25
-    };
+    TextManager& tm = TextManager::getInstance();
 
-    t = new Texture(
-        "resources/textures/menu_red.png",
-        106, 48,
-        Texture::STRETCH,
-        nullptr
-    );
-    UVinfo *uv = new UVinfo{
-        {0, 48},
-        106, 48
+    title = tm.createText("Speedtest", 64, "invisible");
+    title->scale = 1.7f;
+    title->position = {
+        (LOGIC_SCREEN_WIDTH - title->getWidth() * title->scale) / 2,
+        24
     };
-    startGame = new Sprite(game, t, uv);
-    startGame->transform->position = {
-        (LOGIC_SCREEN_WIDTH - 106) / 2.0f,
-        100
-    };
+    title->color = glm::vec4(0.9, 0.0, 0.0, 0.4);
 
-    t = new Texture(
-        "resources/textures/menu_red.png",
-        101, 48,
-        Texture::STRETCH,
-        nullptr
-    );
-    uv = new UVinfo{
-        {0, 0},
-        101, 48
-    };
-    quitGame = new Sprite(game, t, uv);
-    quitGame->transform->position = {
-        (LOGIC_SCREEN_WIDTH - 101) / 2.0f,
-        160
-    };
+    selectorL = tm.createText("Helvetica", 128, "!");
+    selectorR = tm.createText("Helvetica", 128, "!");
 
-    t = new Texture(
-        "resources/textures/menu_red.png",
-        5, 48,
-        Texture::STRETCH,
-        nullptr
-    );
-    uv = new UVinfo{
-        {131, 48},
-        5, 48
-    };
-    selector = new Sprite(game, t, uv);
+    selectorL->scale = 0.5f;
+    selectorR->scale = 0.5f;
+
+    options[0] = tm.createText("Helvetica", 128, "START GAME");
+    options[1] = tm.createText("Helvetica", 128, "EXIT GAME");
+    options[2] = tm.createText("Helvetica", 128, "LEADERBOARDS");
+
+    for (int i = 0; i < OPTIONS_AMT; i++) {
+        options[i]->scale = 0.5f;
+    }
+
+    float currOffset = OPTIONS_OFFSET_FROM_BOTTOM;
+    for (int i = OPTIONS_AMT - 1; i > -1; i--) {
+        options[i]->position = {
+            (LOGIC_SCREEN_WIDTH - options[i]->getWidth() * options[i]->scale) / 2,
+            (LOGIC_SCREEN_HEIGHT - currOffset) - options[i]->getHeight() * options[i]->scale
+        };
+        currOffset += options[i]->getHeight() * options[i]->scale + OPTIONS_SPACE;
+    }
+
+    index = 0;
+    selectorL->position.x = options[index]->position.x - OPTIONS_SPACE - selectorL->getWidth() * options[index]->scale;
+    selectorL->position.y = options[index]->position.y;
+
+    selectorR->position.x = options[index]->position.x + options[index]->getWidth() * options[index]->scale + OPTIONS_SPACE;
+    selectorR->position.y = options[index]->position.y;
 }
 
 Menu::~Menu() {
-    delete startGame;
-    delete quitGame;
-    delete logo;
-    delete selector;
 }
 
 void Menu::processInput(GLFWwindow *window) {
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        if (onStartGame) {
-            if (winScreen) {
-                game->stop();
-                game->start();
-            }
-            else {
-                game->toggleMenu();
-            }
-        }
-        else {
-            game->stop();
-        }
+    bool upPressed = (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS);
+    bool downPressed = (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS);
 
-        return;
-    }
-
-    if (
-        glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS
-        || glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS
-        || glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS
-        || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS
-    ) {
-        if (!wasKeyPressed)
-            onStartGame = !onStartGame;
-        wasKeyPressed = true;
-    }
-    else {
+    if (!wasKeyPressed) {
+        if (upPressed) {
+            index = (index - 1);
+            if (index < 0) index = OPTIONS_AMT -1;
+            wasKeyPressed = true;
+        } else if (downPressed) {
+            index = (index + 1);
+            if (index > OPTIONS_AMT - 1) index = 0;
+            wasKeyPressed = true;
+        }
+    } else if ((!downPressed) && (!upPressed)) {
         wasKeyPressed = false;
     }
 
-    if (onStartGame) {
-        selector->transform->position.x = startGame->transform->position.x + SELECTOR_OFFSET.x;
-        selector->transform->position.y = startGame->transform->position.y + SELECTOR_OFFSET.y;
+    if (upPressed || downPressed) {
+        selectorL->position.x = options[index]->position.x - OPTIONS_SPACE - selectorL->getWidth() * options[index]->scale;
+        selectorL->position.y = options[index]->position.y;
+
+        selectorR->position.x = options[index]->position.x + options[index]->getWidth() * options[index]->scale + OPTIONS_SPACE;
+        selectorR->position.y = options[index]->position.y;
     }
-    else {
-        selector->transform->position.x = quitGame->transform->position.x + SELECTOR_OFFSET.x;
-        selector->transform->position.y = quitGame->transform->position.y + SELECTOR_OFFSET.y;
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        switch (index) {
+            case 0:
+                if (winScreen) {
+                    game->stop();
+                    game->start();
+                    break;
+                }
+                game->toggleMenu();
+                break;
+            case 1:
+                game->stop();
+                break;
+            default:
+                std::cerr << "[Menu::OOB] Literally how." << std::endl;
+        }
     }
 }
 
 void Menu::draw() {
-    logo->draw();
-    startGame->draw();
-    quitGame->draw();
-    selector->draw();
+    title->draw();
+    selectorL->draw();
+    selectorR->draw();
+
+    for (int i = 0; i < OPTIONS_AMT; i++) {
+        if (options[i] != nullptr)
+            options[i]->draw();
+    }
 }
