@@ -416,6 +416,8 @@ void Game::setRoom(const std::string &name) {
 
 void Game::toggleMenu() {
     isOnMenu = !isOnMenu;
+    if (!isOnMenu)
+        player->isPunching = 0;
 }
 
 void Game::processInput() {
