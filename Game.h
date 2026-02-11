@@ -24,12 +24,15 @@ public:
     Player *player;
     Pathfinder *pathfinder;
     GLFWwindow *window;
+    int score = 0;
+    int time = 0;
+    bool inStealth;
 
     Game(GLFWwindow *window);
     ~Game();
 
     void start();
-    void stop();
+    void stop(bool saveScore);
     void setRoom(const std::string& name);
     void toggleMenu();
 private:

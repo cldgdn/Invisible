@@ -112,6 +112,8 @@ add_executable(Invisible main.cpp
         text/TextObject.h
         text/TextManager.cpp
         text/TextManager.h
+        ScoreManager.cpp
+        ScoreManager.h
 )
 
 #STB IMAGE

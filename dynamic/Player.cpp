@@ -342,7 +342,7 @@ void Player::addAllAnimations() {
         16, 32, new Vec2{0, -1.0 * TILE_SIZE},
         frameLocations, 4, 16, 32, 1.14f, false);
     animation->callback = [this]() {
-        this->game->stop();
+        this->game->stop(true);
         this->game->start();
     };
     addAnimation("death", animation);

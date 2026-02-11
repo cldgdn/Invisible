@@ -8,6 +8,7 @@
 #include "../globals.h"
 #include "../Game.h"
 #include "../raycasting.h"
+#include "../ScoreManager.h"
 
 using namespace GUARD;
 
@@ -263,6 +264,8 @@ void Guard::alert(bool playSound) {
     displayMark = MARK_DISPLAY_TIMER;
     fireTimer = FIRE_COOLDOWN / 2;
     isPathNeeded = 0.0f;
+    game->inStealth = false;
+    game->score += SCORING::GET_SPOTTED;
     std::cout << "PLAYER SPOTTED!!" << std::endl;
 }
 
@@ -348,6 +351,8 @@ void Guard::die() {
     isAlive = false;
     isActive = false;
     isVisible = false;
+
+    game->score += SCORING::KILL;
 }
 
 void Guard::addAllAnimations() {

@@ -4,6 +4,7 @@
 
 #include "AudioManager.h"
 #include "Pathfinder.h"
+#include "ScoreManager.h"
 #include "dynamic/RoomExit.h"
 #include "GLFW/glfw3.h"
 #include "glm/gtc/type_ptr.hpp"
@@ -69,11 +70,15 @@ void Game::start() {
     int frames = 0;
     long totframes = 0;
     std::vector<Guard*> delayedGuards;
+    inStealth = true;
     isRunning = true;
     isOnMenu = true;
     menu->winScreen = false;
     player->isDead = false;
     player->playAnimation("idle_down", 0);
+
+    score = 0;
+    time = 0;
 
     buildRooms();
     setRoom("outside");
@@ -85,6 +90,8 @@ void Game::start() {
         currentTime = glfwGetTime();
         deltaTime = currentTime - lastFrame;
         lastFrame = currentTime;
+
+        time += deltaTime;
 
         //Prevent death spiral
         if (deltaTime >= 0.25) {
@@ -298,6 +305,13 @@ void Game::start() {
             //printf("FPS: %d -- AVG frametime: %f\n", frames, totFrameTime / frames);
             totFrameTime = 0;
             frames = 0;
+
+            if (inStealth && !isOnMenu) {
+                score += SCORING::MAINTAIN_STEALTH;
+            }
+            if (!player->isDead && !isOnMenu) {
+                score += SCORING::STAY_ALIVE;
+            }
         }
 
         isRunning = !glfwWindowShouldClose(window) && isRunning;
@@ -308,12 +322,16 @@ void Game::start() {
  * sets the game's state to not running, which will cause the entire thing to stop running and return to main.
  * this method is intended to be used by game objects (such as sprites ecc.)
  */
-void Game::stop() {
+void Game::stop(bool saveScore) {
     isRunning = false;
     if (player->usingNVG) player->usingNVG = false;
     for (auto [name, room] : rooms) {
         delete room;
         rooms[name] = nullptr;
+    }
+
+    if (saveScore) {
+        ScoreManager::getInstance().saveScore({score, time, 0});
     }
 }
 
@@ -403,7 +421,10 @@ CollisionType AABB(Collider *a, Collider *b) {
 }
 
 void Game::setRoom(const std::string &name) {
+    inStealth = true;
+    score += SCORING::KILL;
     if (name == "win") {
+        score += SCORING::GAME_BEAT_BONUS;
         isOnMenu = true;
         menu->winScreen = true;
         if (player->usingNVG) player->usingNVG = false;

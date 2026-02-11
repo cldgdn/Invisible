@@ -5,6 +5,7 @@
 #include "Menu.h"
 
 #include "Game.h"
+#include "ScoreManager.h"
 #include "text/TextManager.h"
 
 using namespace MENU;
@@ -57,6 +58,7 @@ Menu::~Menu() {
 void Menu::processInput(GLFWwindow *window) {
     bool upPressed = (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS);
     bool downPressed = (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS);
+    bool spacePressed = (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS);
 
     if (!wasKeyPressed) {
         if (upPressed) {
@@ -67,8 +69,33 @@ void Menu::processInput(GLFWwindow *window) {
             index = (index + 1);
             if (index > OPTIONS_AMT - 1) index = 0;
             wasKeyPressed = true;
+        } else if (spacePressed) {
+            wasKeyPressed = true;
+
+            if (displayLeaderboards) {
+                displayLeaderboards = false;
+            } else {
+                switch (index) {
+                    case 0:
+                        if (winScreen) {
+                            game->stop(true);
+                            game->start();
+                            break;
+                        }
+                        game->toggleMenu();
+                        break;
+                    case 1:
+                        game->stop(false);
+                        break;
+                    case 2:
+                        displayLeaderboards = true;
+                        break;
+                    default:
+                        std::cerr << "[Menu::OOB] Literally how." << std::endl;
+                }
+            }
         }
-    } else if ((!downPressed) && (!upPressed)) {
+    } else if ((!downPressed) && (!upPressed) && (!spacePressed)) {
         wasKeyPressed = false;
     }
 
@@ -79,33 +106,19 @@ void Menu::processInput(GLFWwindow *window) {
         selectorR->position.x = options[index]->position.x + options[index]->getWidth() * options[index]->scale + OPTIONS_SPACE;
         selectorR->position.y = options[index]->position.y;
     }
-
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        switch (index) {
-            case 0:
-                if (winScreen) {
-                    game->stop();
-                    game->start();
-                    break;
-                }
-                game->toggleMenu();
-                break;
-            case 1:
-                game->stop();
-                break;
-            default:
-                std::cerr << "[Menu::OOB] Literally how." << std::endl;
-        }
-    }
 }
 
 void Menu::draw() {
-    title->draw();
-    selectorL->draw();
-    selectorR->draw();
+    if (!displayLeaderboards) {
+        title->draw();
+        selectorL->draw();
+        selectorR->draw();
 
-    for (int i = 0; i < OPTIONS_AMT; i++) {
-        if (options[i] != nullptr)
-            options[i]->draw();
+        for (int i = 0; i < OPTIONS_AMT; i++) {
+            if (options[i] != nullptr)
+                options[i]->draw();
+        }
+    } else {
+        ScoreManager::getInstance().draw();
     }
 }

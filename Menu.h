@@ -31,7 +31,7 @@ private:
     std::unique_ptr<TextObject> selectorL, selectorR;
     std::unique_ptr<TextObject> options[MENU::OPTIONS_AMT];
     int index = 0;
-    bool wasKeyPressed = false;
+    bool wasKeyPressed = false, displayLeaderboards = false;
 };
 
 
