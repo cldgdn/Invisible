@@ -39,6 +39,7 @@ private:
     bool debug, isRunning, isOnMenu, wasKeyPressed = false;
     Shader *tileShader, *spriteShader, *textShader;
     Menu *menu;
+    std::unique_ptr<TextObject> text;
 
     void buildRooms();
     void processInput();

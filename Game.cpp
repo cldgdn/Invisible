@@ -35,6 +35,14 @@ Game::Game(GLFWwindow *window) : window(window), isOnMenu(true) {
     tm->loadFont("resources/fonts/Speedtest-2O7nK.ttf", "Speedtest", 64);
     tm->loadFont("resources/fonts/Helvetica Ultra Compressed.otf", "Helvetica", 128);
 
+    text = tm->createText("Speedtest", 64, "SCORE");
+    text->scale = 0.5f;
+    text->color = glm::vec4(0.7f, 0.0f, 0.0f, 0.7f);
+    text->position = {
+        4,
+        LOGIC_SCREEN_HEIGHT - 4 - text->getHeight() * text->scale
+    };
+
     pathfinder = new Pathfinder();
 
     Texture *playerSpriteSheet = new Texture("resources/textures/sprites/player.png", 160, 64, Texture::TileMode::STRETCH, nullptr);
@@ -91,8 +99,6 @@ void Game::start() {
         deltaTime = currentTime - lastFrame;
         lastFrame = currentTime;
 
-        time += deltaTime;
-
         //Prevent death spiral
         if (deltaTime >= 0.25) {
             deltaTime = 0.25;
@@ -110,6 +116,8 @@ void Game::start() {
         }
 
         while (physTimeAccumulator >= FIXED_DT && !isOnMenu) {
+            text->setText("SCORE: " + std::to_string(score));
+
             for (Guard *guard : (activeRoom->guards)) {
                 if (!guard->isActive) continue;
                 guard->process();
@@ -273,6 +281,7 @@ void Game::start() {
 
         player->draw();
 
+        if (!isRunning) break;
         for (Guard *guard : delayedGuards) {
             guard->draw();
         }
@@ -282,11 +291,10 @@ void Game::start() {
             b->draw();
         }
 
+        textShader->use();
+        glUniformMatrix4fv(glGetUniformLocation(textShader->ID, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
+        text->draw();
         if (isOnMenu) {
-            textShader->use();
-            glUniformMatrix4fv(glGetUniformLocation(textShader->ID, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
-            textShader->setInt("uText", 0);
-            spriteShader->setInt("uRenderMode", 0);
             menu->draw();
         }
 
@@ -310,6 +318,7 @@ void Game::start() {
                 score += SCORING::MAINTAIN_STEALTH;
             }
             if (!player->isDead && !isOnMenu) {
+                time += 1;
                 score += SCORING::STAY_ALIVE;
             }
         }
