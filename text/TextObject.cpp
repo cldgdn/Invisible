@@ -83,11 +83,19 @@ float TextObject::getHeight() {
 
 void TextObject::draw() {
     float cursor = position.x;
+    float baseline = 0;
 
     GLint programID;
     glGetIntegerv(GL_CURRENT_PROGRAM, &programID);
 
     glUniform4f(glGetUniformLocation(programID, "uTextColor"), color.r, color.g, color.b, color.a);
+
+    for (char c : this->text) {
+        const Glyph& glyph = font->getGlyph(c);
+        baseline = std::max((float) glyph.bearingY, baseline);
+    }
+
+    baseline = position.y + baseline * scale;
 
     for (char c : text) {
         const Glyph& glyph = font->getGlyph(c);
@@ -95,7 +103,14 @@ void TextObject::draw() {
 
 
 
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(cursor + glyph.bearingX * scale, position.y, 0.0f));
+        glm::mat4 model = glm::translate(
+            glm::mat4(1.0f),
+            glm::vec3(
+                cursor + glyph.bearingX * scale,
+                baseline - glyph.bearingY * scale,
+                0.0f
+            )
+        );
         model = glm::scale(model, glm::vec3(scale, scale, 1.0f));
 
         GLint modelLoc = glGetUniformLocation(programID, "uModel");

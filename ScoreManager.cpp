@@ -96,7 +96,7 @@ ScoreManager::ScoreManager() {
     loadScores();
     TextManager &tm = TextManager::getInstance();
 
-    backButton = tm.createText("Helvetica", 128, "RETURN");
+    backButton = tm.createText("Helvetica", 128, "!RETURN!");
     backButton->scale = 0.5f;
     backButton->position = {
         (LOGIC_SCREEN_WIDTH - backButton->getWidth() * backButton->scale) / 2,
@@ -111,8 +111,9 @@ ScoreManager::ScoreManager() {
 
     lines.reserve(SCORING::MAX_SAVED_SCORES);
     for (int i = 0; i < SCORING::MAX_SAVED_SCORES; i++) {
-        lines.push_back(tm.createText("Speedtest", 64, (i >= scores.size()) ? "" :makeText(scores[i])));
-        lines[i]->scale = 0.5f;
+        lines.push_back(tm.createText("Helvetica", 128, (i >= scores.size()) ? "" :makeText(scores[i])));
+        lines[i]->scale = 0.25f;
+        lines[i]->color = glm::vec4(0.7f, 0.0f, 0.0f, 0.7f);
         if (i == 0) {
             lines[i]->position = {
                 (LOGIC_SCREEN_WIDTH - lines[i]->getWidth() * lines[i]->scale) / 2,
@@ -134,8 +135,8 @@ ScoreManager::~ScoreManager() {
 std::string ScoreManager::makeText(ScoreEntry entry) {
     std::ostringstream oss;
 
-    oss << "score: " << entry.score
-        << " time: " << entry.time / 60 << "." << entry.time % 60;
+    oss << "Score: " << entry.score
+        << " Time: " << entry.time / 60 << "." << entry.time % 60;
         //<< " date: " << std::put_time(std::localtime(&entry.timestamp), "%d/%m/%y");
 
     return oss.str();
