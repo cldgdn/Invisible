@@ -136,7 +136,7 @@ std::string ScoreManager::makeText(ScoreEntry entry) {
     std::ostringstream oss;
 
     oss << "Score: " << entry.score
-        << " Time: " << entry.time / 60 << "." << entry.time % 60;
+        << " Time: " << entry.time / 60 << "'" << entry.time % 60 << "''";
         //<< " date: " << std::put_time(std::localtime(&entry.timestamp), "%d/%m/%y");
 
     return oss.str();

@@ -37,7 +37,7 @@ public:
     void toggleMenu();
 private:
     bool debug, isRunning, isOnMenu, wasKeyPressed = false;
-    Shader *tileShader, *spriteShader, *textShader;
+    Shader *tileShader, *spriteShader, *textShader, *boxShader;
     Menu *menu;
     std::unique_ptr<TextObject> text;
 

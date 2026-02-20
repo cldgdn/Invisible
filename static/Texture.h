@@ -22,6 +22,8 @@ public:
         STRETCH,
         TILE
     };
+    std::string path;
+    static std::unordered_map<std::string, TextureInfo> textureCache;
 
     int imgWidth, imgHeight;
 
@@ -34,7 +36,6 @@ public:
 
 private:
     GLuint textureID;
-    std::string path;
     GLuint VAO, VBO, EBO;
 
     Vec2 *staticPos;
@@ -42,8 +43,6 @@ private:
     int nrChannels;
     float width, height;
     TileMode mode;
-
-    static std::unordered_map<std::string, TextureInfo> textureCache;
 
     void setupMesh();
     void loadTextureFromFile();

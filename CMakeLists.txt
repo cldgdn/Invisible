@@ -65,6 +65,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glm)
 
+#Assimp
+set(ASSIMP_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/external/assimp")
+include_directories(${ASSIMP_ROOT}/include)
+link_directories(${ASSIMP_ROOT}/lib)
+
 # -- Executable --
 add_executable(Invisible main.cpp
         dynamic/Transform.cpp
@@ -114,6 +119,10 @@ add_executable(Invisible main.cpp
         text/TextManager.h
         ScoreManager.cpp
         ScoreManager.h
+        Mesh.cpp
+        Mesh.h
+        Model.cpp
+        Model.h
 )
 
 #STB IMAGE
@@ -126,8 +135,20 @@ add_subdirectory(external/freetype-2.14.1)
 
 target_include_directories(Invisible PRIVATE external/freetype-2.14.1/include)
 
-target_link_libraries(Invisible PRIVATE glfw glad glm soloud freetype)
+target_link_libraries(Invisible PRIVATE
+        glfw
+        glad
+        glm
+        soloud
+        freetype
+        assimp
+)
 
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE opengl32)
 endif()
+
+add_custom_command(TARGET Invisible POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${ASSIMP_ROOT}/bin/libassimp-6.dll"
+        $<TARGET_FILE_DIR:Invisible>)

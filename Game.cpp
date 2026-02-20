@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "AudioManager.h"
+#include "Model.h"
 #include "Pathfinder.h"
 #include "ScoreManager.h"
 #include "dynamic/RoomExit.h"
@@ -24,6 +25,7 @@ Game::Game(GLFWwindow *window) : window(window), isOnMenu(true) {
     spriteShader = new Shader("shaders/vertex/spriteVertex.vert", "shaders/fragment/visorSupport.frag");
     tileShader = new Shader("shaders/vertex/tilesVertex.vert", "shaders/fragment/visorSupport.frag");
     textShader = new Shader("shaders/vertex/text.vert", "shaders/fragment/text.frag");
+    boxShader = new Shader("shaders/vertex/box.vert", "shaders/fragment/box.frag");
 
     AudioManager* am = &AudioManager::getInstance();
     am->loadSound("gun", "resources/sounds/gun.wav");
@@ -82,6 +84,7 @@ void Game::start() {
     isRunning = true;
     isOnMenu = true;
     menu->winScreen = false;
+    menu->startScreen = true;
     player->isDead = false;
     player->playAnimation("idle_down", 0);
 
@@ -295,7 +298,7 @@ void Game::start() {
         glUniformMatrix4fv(glGetUniformLocation(textShader->ID, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
         text->draw();
         if (isOnMenu) {
-            menu->draw();
+            menu->draw(textShader, boxShader);
         }
 
         glfwSwapBuffers(window);

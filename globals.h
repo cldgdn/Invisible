@@ -5,7 +5,7 @@
 #ifndef INVISIBLE_GLOBALS_H
 #define INVISIBLE_GLOBALS_H
 
-extern double deltaTime;
+extern double deltaTime, scrollY, scrollX;
 extern unsigned int SCREEN_WIDTH, SCREEN_HEIGHT, LOGIC_SCREEN_WIDTH, LOGIC_SCREEN_HEIGHT;
 
 constexpr unsigned int ROOM_WIDTH = 32;

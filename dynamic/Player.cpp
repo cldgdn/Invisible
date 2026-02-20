@@ -65,9 +65,9 @@ void Player::processInput(GLFWwindow *window) {
     }
 
     //ACTIONS
-    usingBox = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+    usingBox = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
 
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS ) {
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
         if (!wasNVGKeyPressed) {
             wasNVGKeyPressed = true;
             usingNVG = !usingNVG;
@@ -79,7 +79,7 @@ void Player::processInput(GLFWwindow *window) {
         wasNVGKeyPressed = false;
     }
 
-    bool punchPressed = glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS;
+    bool punchPressed = glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
     bool punchJustPressed = !wasPunchPressed && punchPressed;
     wasPunchPressed = punchPressed;
 

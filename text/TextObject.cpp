@@ -101,8 +101,6 @@ void TextObject::draw() {
         const Glyph& glyph = font->getGlyph(c);
         glBindVertexArray(glyph.VAO);
 
-
-
         glm::mat4 model = glm::translate(
             glm::mat4(1.0f),
             glm::vec3(

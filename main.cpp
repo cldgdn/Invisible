@@ -13,10 +13,11 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "static/Texture.h"
 #include "globals.h"
+#include "Model.h"
 #include "dynamic/Sprite.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window, Sprite* sprite);
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 bool checkForLoadBearingSnakes();
 
 std::string loadShaderSource(const char* filePath);
@@ -29,7 +30,7 @@ unsigned int SCREEN_HEIGHT = 900;
 unsigned int LOGIC_SCREEN_WIDTH = 32 * TILE_SIZE;
 unsigned int LOGIC_SCREEN_HEIGHT = 18 * TILE_SIZE;
 
-double deltaTime = 0;
+double deltaTime = 0, scrollX = 0, scrollY = 0;
 int renderMode = 0;
 
 int main()
@@ -56,6 +57,7 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -65,8 +67,12 @@ int main()
         return -1;
     }
 
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    std::cout << "GL Version: " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 
     Game *game = new Game(window);
 
@@ -88,6 +94,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
     SCREEN_HEIGHT = width;
     SCREEN_WIDTH = height;
+}
+
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset) {
+    scrollY = yOffset;
+    scrollX = xOffset;
 }
 
 bool checkForLoadBearingSnakes() {
