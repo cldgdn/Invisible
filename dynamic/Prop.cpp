@@ -1,6 +1,8 @@
 #include "Prop.h"
 
-Prop::Prop(Game *game, PropType type, const std::string& postfix) : Sprite(game, nullptr, nullptr) {
+#include "../globals.h"
+
+Prop::Prop(Game *game, PropType type, const std::string& postfix) : Sprite(game, nullptr, nullptr), type(type) {
     switch (type) {
         case TRUCK:
             makeTruck(postfix);
@@ -16,6 +18,9 @@ Prop::Prop(Game *game, PropType type, const std::string& postfix) : Sprite(game,
             break;
         case DESK:
             makeDesk(postfix);
+            break;
+        case BACKGROUND:
+            makeBackground(postfix);
             break;
         default:
             makeBox(postfix);
@@ -76,4 +81,12 @@ void Prop::makeDesk(const std::string &postfix) {
     );
     addAnimation("anim", animation);
     playAnimation("anim", 0);
+}
+
+void Prop::makeBackground(const std::string &name) {
+    fallbackTexture = new Texture(
+        "resources/textures/props/background_" + name + ".png",
+        LOGIC_SCREEN_WIDTH,     LOGIC_SCREEN_HEIGHT,
+        Texture::TILE, nullptr
+    );
 }

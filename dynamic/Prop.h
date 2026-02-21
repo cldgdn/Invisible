@@ -11,12 +11,14 @@ enum PropType {
     BOX,
     BOX_SMALL,
     TANK,
-    DESK
+    DESK,
+    BACKGROUND
 };
 
 class Prop : public Sprite {
 public:
     std::function<void(Game*)> action = nullptr;
+    PropType type;
 
     Prop(Game *game, PropType type, const std::string& postfix = "");
     ~Prop() override = default;
@@ -27,6 +29,7 @@ private:
     void makeBoxSmall(const std::string& postfix);
     void makeTank(const std::string& postfix);
     void makeDesk(const std::string& postfix);
+    void makeBackground(const std::string& name);
 };
 
 

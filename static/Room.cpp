@@ -1,8 +1,9 @@
 #include "Room.h"
 #include "../dynamic/RoomExit.h"
+#include "../dynamic/BoxPickup.h"
 
-Room::Room(Vec2 playerStartPos, TileMap *tileMap, bool isDark) : playerStartPos(playerStartPos), tileMap(tileMap), isDark(isDark), exit(nullptr) {
-}
+Room::Room(Vec2 playerStartPos, TileMap *tileMap, bool isDark) :
+    playerStartPos(playerStartPos), tileMap(tileMap), isDark(isDark), exit(nullptr), box(nullptr) {}
 
 Room::~Room() {
     delete tileMap;

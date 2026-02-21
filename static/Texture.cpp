@@ -30,7 +30,8 @@ Texture::Texture(const std::string &path, float width, float height, TileMode mo
     } else {
         loadTextureFromFile();
         textureCache[path] = {textureID, imgWidth, imgHeight, nrChannels};
-        //std::cout << "[Texture] Loaded new texture: " << path << std::endl;
+        if (path == "resources/textures/props/background_camo.png")
+            std::cout << "[Texture] Loaded new texture: " << path << " " << imgWidth << " " << imgHeight << " " <<  std::endl;
     }
 
     setupMesh();

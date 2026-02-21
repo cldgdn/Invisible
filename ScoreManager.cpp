@@ -113,7 +113,7 @@ ScoreManager::ScoreManager() {
     for (int i = 0; i < SCORING::MAX_SAVED_SCORES; i++) {
         lines.push_back(tm.createText("Helvetica", 128, (i >= scores.size()) ? "" :makeText(scores[i])));
         lines[i]->scale = 0.25f;
-        lines[i]->color = glm::vec4(0.7f, 0.0f, 0.0f, 0.7f);
+        lines[i]->color = glm::vec4(0.9f, 0.9f, 0.9f, 0.9f);
         if (i == 0) {
             lines[i]->position = {
                 (LOGIC_SCREEN_WIDTH - lines[i]->getWidth() * lines[i]->scale) / 2,

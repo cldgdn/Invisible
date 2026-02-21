@@ -11,6 +11,7 @@
 #include "static/TileMap.h"
 
 CollisionType AABB(Collider *a, Collider *b);
+Room* makeStartRoom(Game* game);
 Room* makeOutsideRoom(Game *game);
 Room* makeEntranceRoom(Game *game);
 Room* makeStorageRoom(Game *game);

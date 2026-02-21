@@ -6,6 +6,7 @@
 #include "Model.h"
 #include "Pathfinder.h"
 #include "ScoreManager.h"
+#include "dynamic/BoxPickup.h"
 #include "dynamic/RoomExit.h"
 #include "GLFW/glfw3.h"
 #include "glm/gtc/type_ptr.hpp"
@@ -92,7 +93,7 @@ void Game::start() {
     time = 0;
 
     buildRooms();
-    setRoom("outside");
+    setRoom("start");
 
     //GAME LOOP
     while (isRunning) {
@@ -165,6 +166,14 @@ void Game::start() {
                     Collider *e = activeRoom->exit->colliders["exit"];
                     if (AABB(c, e) != NO_COLLISION) {
                         setRoom(activeRoom->exit->roomName);
+                    }
+                }
+
+                if (activeRoom->box != nullptr && activeRoom->box->isActive) {
+                    Collider *b = activeRoom->box->colliders["box"];
+                    if (AABB(c, b) != NO_COLLISION) {
+                        activeRoom->box->isActive = false;
+                        player->hasBox = true;
                     }
                 }
             }
@@ -259,7 +268,8 @@ void Game::start() {
         tileShader->setInt("uVirtualHeight", LOGIC_SCREEN_HEIGHT);
         tileShader->setInt("uRealHeight", SCREEN_HEIGHT);
 
-        activeRoom->tileMap->draw(false);
+        if (activeRoom->tileMap != nullptr)
+            activeRoom->tileMap->draw(false);
 
         spriteShader->use();
         glUniformMatrix4fv(glGetUniformLocation(spriteShader->ID, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
@@ -268,11 +278,20 @@ void Game::start() {
         spriteShader->setInt("uRealHeight", SCREEN_HEIGHT);
 
         for (Prop *prop : activeRoom->props) {
-            prop->draw();
+            if (prop->type == PropType::BACKGROUND) {
+                tileShader->use();
+                prop->draw();
+                spriteShader->use();
+            } else {
+                prop->draw();
+            }
         }
 
         if (activeRoom->exit != nullptr)
             activeRoom->exit->draw();
+
+        if (activeRoom->box != nullptr)
+            activeRoom->box->draw();
 
         //guards that are lower on the screen should be drawn in front of the player
         for (Guard *guard : activeRoom->guards) {
@@ -434,6 +453,7 @@ CollisionType AABB(Collider *a, Collider *b) {
 
 void Game::setRoom(const std::string &name) {
     inStealth = true;
+    player->hasBox = false;
     score += SCORING::KILL;
     if (name == "win") {
         score += SCORING::GAME_BEAT_BONUS;
@@ -443,6 +463,10 @@ void Game::setRoom(const std::string &name) {
     }
 
     activeRoom = rooms[name];
+
+    if (activeRoom->box != nullptr)
+        activeRoom->box->isActive = true;
+
     player->transform->position.x = activeRoom->playerStartPos.x * TILE_SIZE;
     player->transform->position.y = activeRoom->playerStartPos.y * TILE_SIZE;
 }
@@ -485,10 +509,22 @@ void Game::processInput() {
 }
 
 void Game::buildRooms() {
+    rooms["start"] = makeStartRoom(this);
     rooms["outside"] = makeOutsideRoom(this);
     rooms["entrance"] = makeEntranceRoom(this);
     rooms["storage"] = makeStorageRoom(this);
     rooms["win"] = makeWinRoom(this);
+}
+
+Room* makeStartRoom(Game* game) {
+    Room *room = new Room({0, 0}, nullptr, false);
+    room->playerStartPos = {-100, -100};
+
+    Prop *p = new Prop(game, BACKGROUND, "camo");
+    p->transform->position = {0, 0};
+    room->props.push_back(p);
+
+    return room;
 }
 
 Room* makeOutsideRoom(Game *game)  {
@@ -521,6 +557,9 @@ Room* makeOutsideRoom(Game *game)  {
 
     room->exit = new RoomExit(game, "entrance", VERTICAL);
     room->exit->transform->position = {31 * TILE_SIZE, 8 * TILE_SIZE};
+
+    room->box = new BoxPickup(game);
+    room->box->transform->position = {7 * TILE_SIZE, 15 * TILE_SIZE};
 
     Prop *p = new Prop(game, TRUCK, "_outside");
     p->transform->position = {4 * TILE_SIZE, 2 * TILE_SIZE};
@@ -663,6 +702,15 @@ Room* makeEntranceRoom(Game *game) {
 
     room->exit = new RoomExit(game, "storage", VERTICAL);
     room->exit->transform->position = {31 * TILE_SIZE, 8 * TILE_SIZE};
+
+    Vec2 boxPositions[] = {
+        {12 * TILE_SIZE, 1 * TILE_SIZE},
+        {14 * TILE_SIZE, 15 * TILE_SIZE},
+        {21 * TILE_SIZE, 14 * TILE_SIZE}
+    };
+    int pos = std::rand() % 3;
+    room->box = new BoxPickup(game);
+    room->box->transform->position = boxPositions[pos];
 
     Prop *p = new Prop(game, BOX_SMALL, "");
     p->transform->position = {3 * TILE_SIZE, 1 * TILE_SIZE};
@@ -846,6 +894,15 @@ Room* makeStorageRoom(Game *game) {
 
     room->exit = new RoomExit(game, "win", HORIZONTAL);
     room->exit->transform->position = {28 * TILE_SIZE, 0};
+
+    Vec2 boxPositions[] = {
+        {11 * TILE_SIZE, 6 * TILE_SIZE},
+        {19 * TILE_SIZE, 15 * TILE_SIZE},
+        {20 * TILE_SIZE, 6 * TILE_SIZE}
+    };
+    int pos = std::rand() % 3;
+    room->box = new BoxPickup(game);
+    room->box->transform->position = boxPositions[pos];
 
     Prop *p = new Prop(game, BOX);
     p->transform->position = {2 * TILE_SIZE, 6 * TILE_SIZE};

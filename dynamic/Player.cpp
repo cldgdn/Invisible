@@ -65,7 +65,7 @@ void Player::processInput(GLFWwindow *window) {
     }
 
     //ACTIONS
-    usingBox = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+    usingBox = hasBox && (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);
 
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
         if (!wasNVGKeyPressed) {

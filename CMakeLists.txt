@@ -123,6 +123,8 @@ add_executable(Invisible main.cpp
         Mesh.h
         Model.cpp
         Model.h
+        dynamic/BoxPickup.cpp
+        dynamic/BoxPickup.h
 )
 
 #STB IMAGE

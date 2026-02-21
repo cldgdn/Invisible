@@ -163,17 +163,6 @@ void Guard::process() {
             fire();
             fireTimer = FIRE_COOLDOWN;
         }
-
-        //spread alert status to nearby guards
-        std::vector<Guard*>* others = &game->activeRoom->guards;
-        for (Guard *g : *others) {
-            if (g == this || g->isAlerted || !g->isAlive)
-                continue;
-            float distance = sqrt(pow(g->transform->position.x - transform->position.x, 2) + pow(g->transform->position.x - transform->position.x, 2));
-            if (distance <= GUARD::ALERT_SPREAD_DISTANCE) {
-                g->alert(false);
-            }
-        }
     }
     else if (!player->usingBox && !player->isDead) {
         Vec2 origin = transform->position + RAYCAST_OFFSET;
@@ -336,6 +325,17 @@ void Guard::fire() {
             break;
     }
     game->activeRoom->bullets.push_back(b);
+
+    //spread alert status to nearby guards
+    std::vector<Guard*>* others = &game->activeRoom->guards;
+    for (Guard *g : *others) {
+        if (g == this || g->isAlerted || !g->isAlive)
+            continue;
+        float distance = sqrt(pow(g->transform->position.x - transform->position.x, 2) + pow(g->transform->position.x - transform->position.x, 2));
+        if (distance <= GUARD::ALERT_SPREAD_DISTANCE) {
+            g->alert(false);
+        }
+    }
 
     AudioManager::getInstance().playSound("gun", 0.5f, false);
 }
