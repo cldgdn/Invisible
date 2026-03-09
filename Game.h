@@ -27,6 +27,7 @@ public:
     GLFWwindow *window;
     int score = 0;
     int time = 0;
+    float scoreDecay = 0;
     bool inStealth;
 
     Game(GLFWwindow *window);

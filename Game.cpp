@@ -38,8 +38,8 @@ Game::Game(GLFWwindow *window) : window(window), isOnMenu(true) {
     tm->loadFont("resources/fonts/Speedtest-2O7nK.ttf", "Speedtest", 64);
     tm->loadFont("resources/fonts/Helvetica Ultra Compressed.otf", "Helvetica", 128);
 
-    text = tm->createText("Speedtest", 64, "SCORE");
-    text->scale = 0.5f;
+    text = tm->createText("Helvetica", 128, "SCORE");
+    text->scale = 0.2f;
     text->color = glm::vec4(0.7f, 0.0f, 0.0f, 0.7f);
     text->position = {
         4,
@@ -89,11 +89,11 @@ void Game::start() {
     player->isDead = false;
     player->playAnimation("idle_down", 0);
 
-    score = 0;
-    time = 0;
-
     buildRooms();
     setRoom("start");
+
+    score = 0;
+    time = 0;
 
     //GAME LOOP
     while (isRunning) {
@@ -174,6 +174,7 @@ void Game::start() {
                     if (AABB(c, b) != NO_COLLISION) {
                         activeRoom->box->isActive = false;
                         player->hasBox = true;
+                        score += SCORING::BOX_COLLECTED;
                     }
                 }
             }
@@ -315,7 +316,8 @@ void Game::start() {
 
         textShader->use();
         glUniformMatrix4fv(glGetUniformLocation(textShader->ID, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
-        text->draw();
+        if (!menu->startScreen)
+            text->draw();
         if (isOnMenu) {
             menu->draw(textShader, boxShader);
         }
@@ -337,12 +339,17 @@ void Game::start() {
             frames = 0;
 
             if (inStealth && !isOnMenu) {
-                score += SCORING::MAINTAIN_STEALTH;
+                score += SCORING::MAINTAIN_STEALTH * (1 - scoreDecay);
             }
             if (!player->isDead && !isOnMenu) {
                 time += 1;
-                score += SCORING::STAY_ALIVE;
+                score += SCORING::STAY_ALIVE * (1 - scoreDecay);
             }
+
+            if (scoreDecay < 1)
+                scoreDecay += SCORING::SCORE_DECAY / 100;
+            else
+                scoreDecay = 1;
         }
 
         isRunning = !glfwWindowShouldClose(window) && isRunning;
@@ -454,7 +461,11 @@ CollisionType AABB(Collider *a, Collider *b) {
 void Game::setRoom(const std::string &name) {
     inStealth = true;
     player->hasBox = false;
-    score += SCORING::KILL;
+
+    scoreDecay = 0;
+    if (name != "outside")
+        score += SCORING::ROOM_BEAT;
+
     if (name == "win") {
         score += SCORING::GAME_BEAT_BONUS;
         isOnMenu = true;

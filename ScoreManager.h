@@ -10,11 +10,13 @@
 namespace SCORING {
     constexpr int MAINTAIN_STEALTH = 20;    //add 10 points/s while staying entirely undetected
     constexpr int STAY_ALIVE = 10;          //add 5 points/s while staying alive
+    constexpr int BOX_COLLECTED = 100;      //add 100 points for collecting the box
     constexpr int GET_SPOTTED = -50;        //remove 50 points whenever a guard is alerted
     constexpr int KILL = -50;               //remove 150 points whenever the player kills a guard
     constexpr int ROOM_BEAT = 150;          //add 150 points for beating a room
     constexpr int GAME_BEAT_BONUS = 400;    //add 150 extra points on top of ROOM_BEAT when beating the final room
     constexpr int MAX_SAVED_SCORES = 5;     //amount of scores that will be saved at one time
+    constexpr float SCORE_DECAY = 5;        //% decay per second of maintain stealth and stay alive bonuses.
 }
 
 namespace SCORE_MANAGER {
